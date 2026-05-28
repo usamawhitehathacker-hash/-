@@ -1,0 +1,174 @@
+{%- comment -%}
+  Header Promo Section
+  --------------------
+  Promotional banner below the main header navigation.
+  Dismissible with session cookie. Shows image + text + CTA.
+  
+  Pattern: Canopy / Local / Palo Alto promo bar
+  Called by: sections/header-group.json
+{%- endcomment -%}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme | default: 'scheme-1'
+  assign dismissible = section.settings.dismissible
+  assign show_on_mobile = section.settings.show_on_mobile | default: true
+  assign promo_blocks = section.blocks | where: 'type', '_promo-content'
+-%}
+
+<div class="header-promo color-{{ color_scheme }}{% unless show_on_mobile %} header-promo--hide-mobile{% endunless %}"
+     {{ section.shopify_attributes }}
+     data-section-id="{{ section.id }}"
+     {% if dismissible %}data-dismissible{% endif %}
+>
+  <div class="header-promo__container">
+    <div class="header-promo__content">
+      {%- for block in promo_blocks -%}
+        {%- render block -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if dismissible -%}
+      <button class="header-promo__dismiss" aria-label="Dismiss promotional banner" type="button">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    {%- endif -%}
+  </div>
+</div>
+
+<script type="module">
+  (function() {
+    const section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    const storageKey = 'header-promo-dismissed-{{ section.id }}';
+    const isDismissible = section.hasAttribute('data-dismissible');
+
+    if (isDismissible && sessionStorage.getItem(storageKey) === 'true') {
+      section.setAttribute('hidden', '');
+      return;
+    }
+
+    if (isDismissible) {
+      const dismissBtn = section.querySelector('.header-promo__dismiss');
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', function() {
+          section.setAttribute('hidden', '');
+          sessionStorage.setItem(storageKey, 'true');
+        });
+      }
+    }
+  })();
+</script>
+
+{% stylesheet %}
+  .header-promo {
+    position: relative;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .header-promo[hidden] {
+    display: none;
+  }
+  .header-promo--hide-mobile {
+    display: none;
+  }
+  @media (min-width: 750px) {
+    .header-promo--hide-mobile {
+      display: block;
+    }
+  }
+  .header-promo__container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: var(--page-width, 1440px);
+    margin: 0 auto;
+    padding: 0.5rem var(--page-gutter, 1.5rem);
+    gap: 1rem;
+    min-height: 40px;
+  }
+  .header-promo__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex: 1;
+    text-align: center;
+  }
+  .header-promo__dismiss {
+    position: absolute;
+    right: var(--page-gutter, 1.5rem);
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 150ms ease;
+    border-radius: 50%;
+  }
+  .header-promo__dismiss:hover {
+    opacity: 1;
+  }
+  @media (max-width: 749px) {
+    .header-promo__container {
+      padding: 0.5rem 2.5rem 0.5rem 1rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Promo banner",
+  "tag": "div",
+  "class": "section-header-promo",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "dismissible",
+      "label": "Allow customers to dismiss",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_mobile",
+      "label": "Show on mobile",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "_promo-content",
+      "name": "Promo content",
+      "limit": 1
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "presets": [
+    {
+      "name": "Promo banner",
+      "blocks": [
+        { "type": "_promo-content" }
+      ]
+    }
+  ]
+}
+{% endschema %}

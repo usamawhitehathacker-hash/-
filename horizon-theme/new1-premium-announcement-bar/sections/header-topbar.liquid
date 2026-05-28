@@ -1,0 +1,187 @@
+{%- comment -%}
+  Header Top Bar Section
+  ----------------------
+  Thin contact/info bar above the main header.
+  Contains: phone, email, hours, social icons, localization.
+  
+  Pattern: Symmetry / Enterprise / Stiletto top bar
+  Called by: sections/header-group.json
+{%- endcomment -%}
+
+{%- liquid
+  assign color_scheme = section.settings.color_scheme | default: 'scheme-1'
+  assign show_on_mobile = section.settings.show_on_mobile | default: false
+  assign show_localization = section.settings.show_localization | default: true
+  
+  assign link_blocks = section.blocks | where: 'type', '_topbar-link'
+  assign social_blocks = section.blocks | where: 'type', '_topbar-social'
+  assign currency_blocks = section.blocks | where: 'type', 'currency-selector'
+  assign language_blocks = section.blocks | where: 'type', 'language-selector'
+-%}
+
+<div class="header-topbar color-{{ color_scheme }}{% unless show_on_mobile %} header-topbar--hide-mobile{% endunless %}"
+     {{ section.shopify_attributes }}
+>
+  <div class="header-topbar__container">
+    {%- if link_blocks.size > 0 -%}
+      <div class="header-topbar__left">
+        {%- for block in link_blocks -%}
+          {%- render block -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <div class="header-topbar__right">
+      {%- if social_blocks.size > 0 -%}
+        <div class="header-topbar__social">
+          {%- for block in social_blocks -%}
+            {%- render block -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if show_localization -%}
+        <div class="header-topbar__localization">
+          {%- for block in currency_blocks -%}
+            {%- render block -%}
+          {%- endfor -%}
+          {%- for block in language_blocks -%}
+            {%- render block -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .header-topbar {
+    --topbar-height: 36px;
+    font-size: 0.75rem;
+    line-height: var(--topbar-height);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .header-topbar--hide-mobile {
+    display: none;
+  }
+  @media (min-width: 750px) {
+    .header-topbar--hide-mobile {
+      display: block;
+    }
+  }
+  .header-topbar__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--page-width, 1440px);
+    margin: 0 auto;
+    padding: 0 var(--page-gutter, 1.5rem);
+    gap: 1rem;
+  }
+  .header-topbar__left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .header-topbar__right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+  }
+  .header-topbar__social {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .header-topbar__localization {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .topbar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    opacity: 0.85;
+    transition: opacity 150ms ease;
+  }
+  .topbar-link:hover { opacity: 1; }
+  .topbar-social {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 150ms ease;
+  }
+  .topbar-social:hover { opacity: 1; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Top bar",
+  "tag": "div",
+  "class": "section-header-topbar",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_mobile",
+      "label": "Show on mobile",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_localization",
+      "label": "Show country/language selector",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "_topbar-link",
+      "name": "Contact link",
+      "limit": 5
+    },
+    {
+      "type": "_topbar-social",
+      "name": "Social icon",
+      "limit": 6
+    },
+    {
+      "type": "currency-selector",
+      "name": "Currency selector",
+      "limit": 1
+    },
+    {
+      "type": "language-selector",
+      "name": "Language selector",
+      "limit": 1
+    }
+  ],
+  "max_blocks": 12,
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "presets": [
+    {
+      "name": "Top bar",
+      "blocks": [
+        { "type": "_topbar-link", "settings": { "icon": "phone", "label": "+1-800-000-0000", "url": "tel:+18000000000" } },
+        { "type": "_topbar-link", "settings": { "icon": "email", "label": "hello@store.com", "url": "mailto:hello@store.com" } },
+        { "type": "_topbar-social", "settings": { "platform": "instagram", "url": "https://instagram.com" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

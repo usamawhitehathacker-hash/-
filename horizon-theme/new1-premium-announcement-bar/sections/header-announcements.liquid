@@ -27,13 +27,23 @@
     {% if autoplay == true %}
       autoplay="{{ section.settings.speed }}" aria-live="polite"
     {% endif %}
+    {% if section.settings.pause_on_hover %}
+      data-pause-on-hover
+    {% endif %}
   >
     {% if show_arrows %}
       {% render 'slideshow-arrows', icon_style: 'chevron' %}
     {% endif %}
 
     <div class="announcement-bar__slides">
-      {% content_for 'blocks' %}
+      {% for block in section.blocks %}
+        {%- case block.type -%}
+          {%- when '_announcement' -%}
+            {%- render block -%}
+          {%- when '_countdown-announcement' -%}
+            {%- render block -%}
+        {%- endcase -%}
+      {% endfor %}
     </div>
   </announcement-bar-component>
 </aside>
@@ -129,6 +139,11 @@
   "blocks": [
     {
       "type": "_announcement"
+    },
+    {
+      "type": "_countdown-announcement",
+      "name": "Countdown announcement",
+      "limit": 3
     }
   ],
   "enabled_on": {
@@ -143,6 +158,22 @@
       "max": 10,
       "default": 5,
       "unit": "sec"
+    },
+    {
+      "type": "range",
+      "id": "rotation_speed",
+      "label": "Rotation speed (seconds)",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "default": 5,
+      "unit": "s"
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause rotation on hover",
+      "default": true
     },
     {
       "type": "header",
