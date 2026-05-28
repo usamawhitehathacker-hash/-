@@ -2284,5 +2284,246 @@
         "default": "equal-width-buttons"
       }
     ]
+  },
+  {
+    "name": "Header (Premium)",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Sticky behavior"
+      },
+      {
+        "type": "select",
+        "id": "header_sticky_behavior",
+        "label": "Sticky behavior",
+        "options": [
+          { "value": "none", "label": "None" },
+          { "value": "always", "label": "Always sticky" },
+          { "value": "scroll-up", "label": "Sticky on scroll up" },
+          { "value": "shrink", "label": "Sticky and shrink" }
+        ],
+        "default": "shrink"
+      },
+      {
+        "type": "range",
+        "id": "header_shrink_size",
+        "label": "Shrunk header size (%)",
+        "min": 50,
+        "max": 100,
+        "step": 5,
+        "default": 75,
+        "unit": "%"
+      },
+      {
+        "type": "range",
+        "id": "header_shrink_logo_size",
+        "label": "Shrunk logo size (%)",
+        "min": 50,
+        "max": 100,
+        "step": 5,
+        "default": 70,
+        "unit": "%"
+      },
+      {
+        "type": "header",
+        "content": "Transparent header"
+      },
+      {
+        "type": "paragraph",
+        "content": "Transparent headers overlay the first section. Use the inverse logo and adjust text color for readability."
+      },
+      {
+        "type": "checkbox",
+        "id": "header_transparent_on_home",
+        "label": "Transparent on home page",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "header_transparent_on_collection",
+        "label": "Transparent on collection pages",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "header_transparent_on_product",
+        "label": "Transparent on product pages",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "header_transparent_on_page",
+        "label": "Transparent on regular pages",
+        "default": false
+      },
+      {
+        "type": "color",
+        "id": "header_transparent_text_color",
+        "label": "Text color when transparent",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "header",
+        "content": "Mega menu"
+      },
+      {
+        "type": "select",
+        "id": "header_mega_menu_default_layout",
+        "label": "Default mega menu layout",
+        "options": [
+          { "value": "layout-1", "label": "Layout 1 — Simple dropdown" },
+          { "value": "layout-2", "label": "Layout 2 — Multi-column" },
+          { "value": "layout-3", "label": "Layout 3 — Multi-column with image" },
+          { "value": "layout-4", "label": "Layout 4 — Multi-column with featured products" },
+          { "value": "layout-5", "label": "Layout 5 — Full-width with promo banner" }
+        ],
+        "default": "layout-2",
+        "info": "Override per menu item in the menu block settings."
+      },
+      {
+        "type": "range",
+        "id": "header_mega_menu_hover_delay",
+        "label": "Mega menu hover delay (ms)",
+        "min": 0,
+        "max": 600,
+        "step": 50,
+        "default": 200,
+        "unit": "ms"
+      },
+      {
+        "type": "range",
+        "id": "header_animation_duration",
+        "label": "Menu animation duration (ms)",
+        "min": 0,
+        "max": 600,
+        "step": 50,
+        "default": 250,
+        "unit": "ms"
+      },
+      {
+        "type": "checkbox",
+        "id": "header_mega_menu_overlay",
+        "label": "Show backdrop overlay behind mega menu",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "header_menu_hover_style",
+        "label": "Menu hover style",
+        "options": [
+          { "value": "underline", "label": "Underline" },
+          { "value": "highlight", "label": "Background highlight" },
+          { "value": "dot", "label": "Dot under text" },
+          { "value": "none", "label": "None" }
+        ],
+        "default": "underline"
+      },
+      {
+        "type": "checkbox",
+        "id": "header_show_menu_badges",
+        "label": "Show menu item badges",
+        "default": true,
+        "info": "Use [NEW], [SALE], or [-30%] in menu link titles to display badges. Example: \"Sneakers [NEW]\""
+      },
+      {
+        "type": "header",
+        "content": "Search"
+      },
+      {
+        "type": "select",
+        "id": "header_search_style",
+        "label": "Search style",
+        "options": [
+          { "value": "icon", "label": "Icon only" },
+          { "value": "input", "label": "Inline input field" },
+          { "value": "overlay", "label": "Full-screen overlay" }
+        ],
+        "default": "overlay"
+      },
+      {
+        "type": "checkbox",
+        "id": "header_show_predictive_results",
+        "label": "Show predictive search results",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "header_predictive_image_size",
+        "label": "Predictive result image size",
+        "options": [
+          { "value": "small", "label": "Small" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "large", "label": "Large" }
+        ],
+        "default": "medium"
+      },
+      {
+        "type": "checkbox",
+        "id": "header_show_popular_searches",
+        "label": "Show popular searches when overlay opens",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "header_popular_search_terms",
+        "label": "Popular search terms",
+        "default": "Dresses, Shoes, Sale, New arrivals",
+        "info": "Comma-separated. Shown when search overlay opens with no query."
+      },
+      {
+        "type": "header",
+        "content": "Mobile drawer"
+      },
+      {
+        "type": "select",
+        "id": "header_drawer_position",
+        "label": "Drawer slide-in position",
+        "options": [
+          { "value": "left", "label": "Left" },
+          { "value": "right", "label": "Right" }
+        ],
+        "default": "left"
+      },
+      {
+        "type": "checkbox",
+        "id": "header_drawer_show_promo",
+        "label": "Show promo block in drawer",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "header_drawer_show_localization",
+        "label": "Show country/language switcher in drawer",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Header actions"
+      },
+      {
+        "type": "checkbox",
+        "id": "header_show_search",
+        "label": "Show search",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "header_show_account",
+        "label": "Show account icon",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "header_show_wishlist",
+        "label": "Show wishlist icon",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "header_show_cart",
+        "label": "Show cart icon",
+        "default": true
+      }
+    ]
   }
 ]
