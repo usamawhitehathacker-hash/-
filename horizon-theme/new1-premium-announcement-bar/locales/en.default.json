@@ -371,5 +371,132 @@
       "default_title": "Default Title",
       "sticky_add_to_cart": "Quick add to cart bar"
     }
+  },
+  "header": {
+    "navigation": {
+      "primary": "Primary navigation",
+      "secondary": "Secondary navigation",
+      "open_menu": "Open menu",
+      "close_menu": "Close menu",
+      "back": "Back",
+      "menu": "Menu",
+      "skip_to_content": "Skip to content",
+      "go_to_home": "Go to {{ store_name }} home"
+    },
+    "search": {
+      "open": "Open search",
+      "close": "Close search",
+      "placeholder": "Search our store",
+      "submit": "Search",
+      "clear": "Clear search",
+      "results_for": "Results for \"{{ terms }}\"",
+      "no_results": "No results found for \"{{ terms }}\"",
+      "view_all_results": "View all results",
+      "popular_searches": "Popular searches",
+      "recent_searches": "Recent searches",
+      "trending": "Trending"
+    },
+    "cart": {
+      "open": "Open cart",
+      "view_cart": "View cart",
+      "items_count": {
+        "one": "{{ count }} item",
+        "other": "{{ count }} items"
+      },
+      "empty": "Your cart is empty"
+    },
+    "account": {
+      "open": "Open account menu",
+      "log_in": "Log in",
+      "log_out": "Log out",
+      "register": "Create account",
+      "my_account": "My account",
+      "orders": "Orders",
+      "addresses": "Addresses",
+      "wishlist": "Wishlist",
+      "greeting": "Hi, {{ first_name }}"
+    },
+    "wishlist": {
+      "open": "Open wishlist",
+      "items_count": {
+        "one": "{{ count }} saved item",
+        "other": "{{ count }} saved items"
+      }
+    },
+    "drawer": {
+      "open": "Open menu drawer",
+      "close": "Close menu drawer",
+      "title": "Menu",
+      "shop_section": "Shop",
+      "info_section": "Information",
+      "account_section": "Account",
+      "promo_label": "Featured"
+    },
+    "topbar": {
+      "phone_label": "Call us",
+      "email_label": "Email us",
+      "address_label": "Visit us",
+      "hours_label": "Open hours",
+      "follow_us": "Follow us"
+    },
+    "announcement": {
+      "default_message": "Free shipping on orders over $50",
+      "dismiss": "Dismiss announcement",
+      "previous": "Previous announcement",
+      "next": "Next announcement",
+      "pause": "Pause announcements",
+      "play": "Play announcements"
+    },
+    "countdown": {
+      "ends_in": "Ends in",
+      "starts_in": "Starts in",
+      "expired": "Sale ended",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds",
+      "days_short": "d",
+      "hours_short": "h",
+      "minutes_short": "m",
+      "seconds_short": "s"
+    },
+    "mega_menu": {
+      "view_all": "View all",
+      "shop_collection": "Shop collection",
+      "shop_now": "Shop now",
+      "explore": "Explore",
+      "featured_products": "Featured products",
+      "featured_collection": "Featured collection",
+      "new_arrivals": "New arrivals",
+      "best_sellers": "Best sellers",
+      "on_sale": "On sale",
+      "promo_label": "Featured",
+      "badge_new": "New",
+      "badge_sale": "Sale",
+      "badge_hot": "Hot",
+      "badge_soldout": "Sold out"
+    },
+    "promo": {
+      "default_heading": "Free shipping on orders over $50",
+      "default_subheading": "Limited time only",
+      "default_button_label": "Shop now",
+      "dismiss": "Dismiss promotion"
+    },
+    "search_overlay": {
+      "title": "What are you looking for?",
+      "back_to_site": "Back to site",
+      "shortcut_hint": "Press / to search"
+    },
+    "localization": {
+      "country_label": "Country/Region",
+      "language_label": "Language",
+      "currency_label": "Currency",
+      "update_button": "Update preferences",
+      "selected": "Selected: {{ name }}"
+    },
+    "mobile": {
+      "swipe_to_close": "Swipe to close",
+      "tap_outside_to_close": "Tap outside to close"
+    }
   }
 }
