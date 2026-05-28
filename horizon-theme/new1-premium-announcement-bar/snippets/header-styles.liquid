@@ -1,0 +1,208 @@
+{%- comment -%}
+  Premium Header — CSS Variables Generator
+  ----------------------------------------
+  Generates header-specific CSS custom properties from theme settings + section settings.
+  Output: scoped <style> block with `--header-*` variables on the section root.
+
+  Reads theme globals from settings (Step 3 of Phase A):
+    settings.header_sticky_behavior
+    settings.header_shrink_size
+    settings.header_shrink_logo_size
+    settings.header_transparent_on_*
+    settings.header_transparent_text_color
+    settings.header_mega_menu_default_layout
+    settings.header_mega_menu_hover_delay
+    settings.header_animation_duration
+    settings.header_mega_menu_overlay
+    settings.header_menu_hover_style
+    settings.header_show_menu_badges
+    settings.header_search_style
+    settings.header_drawer_position
+    + boolean toggles for action icons
+
+  Reads section overrides (when called from sections/header.liquid in Step 33):
+    section.settings.header_height
+    section.settings.header_padding_top / padding_bottom
+    section.settings.menu_alignment
+    section.settings.menu_spacing
+    section.settings.use_custom_background / header_background
+    section.settings.show_border / border_color
+    section.settings.container_width
+
+  USAGE:
+    {%- render 'header-styles', section: section -%}
+
+  REQUIRED PARAMETERS:
+    section — the section object (from sections/header.liquid)
+
+  OPTIONAL PARAMETERS:
+    is_transparent — boolean override (computed in parent if not passed)
+{%- endcomment -%}
+
+{%- liquid
+  assign section_id = section.id
+  assign s = section.settings
+
+  # ---- Determine if header is transparent for this template ----
+  assign template_name = template.name | default: 'index'
+  assign is_transparent = false
+  if template_name == 'index' and settings.header_transparent_on_home
+    assign is_transparent = true
+  elsif template_name == 'collection' and settings.header_transparent_on_collection
+    assign is_transparent = true
+  elsif template_name == 'product' and settings.header_transparent_on_product
+    assign is_transparent = true
+  elsif template_name == 'page' and settings.header_transparent_on_page
+    assign is_transparent = true
+  endif
+
+  # ---- Sticky behavior ----
+  assign sticky_behavior = settings.header_sticky_behavior | default: 'shrink'
+  assign shrink_size = settings.header_shrink_size | default: 75
+  assign shrink_logo_size = settings.header_shrink_logo_size | default: 70
+
+  # ---- Animation timings ----
+  assign hover_delay = settings.header_mega_menu_hover_delay | default: 200
+  assign animation_duration = settings.header_animation_duration | default: 250
+
+  # ---- Hover style ----
+  assign hover_style = settings.header_menu_hover_style | default: 'underline'
+
+  # ---- Section-level layout overrides (with safe fallbacks) ----
+  assign header_height = s.header_height | default: 80
+  assign padding_top = s.padding_top | default: 16
+  assign padding_bottom = s.padding_bottom | default: 16
+  assign menu_alignment = s.menu_alignment | default: 'center'
+  assign menu_spacing = s.menu_spacing | default: 32
+  assign menu_letter_spacing = s.menu_letter_spacing | default: 0
+  assign logo_max_width = s.logo_max_width | default: 160
+  assign logo_mobile_max_width = s.logo_mobile_max_width | default: 120
+
+  # ---- Logo position ----
+  assign logo_position = s.logo_position | default: 'left'
+
+  # ---- Container width ----
+  assign container_width = s.container_width | default: 'default'
+  assign container_max = '1440px'
+  case container_width
+    when 'narrow'
+      assign container_max = '1140px'
+    when 'wide'
+      assign container_max = '1600px'
+    when 'full'
+      assign container_max = '100%'
+    else
+      assign container_max = '1440px'
+  endcase
+
+  # ---- Custom background (color picker is never blank — check toggle) ----
+  assign use_custom_bg = s.use_custom_background | default: false
+  assign header_bg = s.header_background | default: 'rgb(var(--color-background))'
+
+  # ---- Border ----
+  assign show_border = s.show_border | default: false
+  assign border_color = s.border_color | default: 'rgba(0, 0, 0, 0.08)'
+
+  # ---- Transparent text color ----
+  assign transparent_text = settings.header_transparent_text_color | default: '#FFFFFF'
+-%}
+
+{%- style -%}
+  #shopify-section-{{ section_id }} {
+    /* Layout */
+    --header-height: {{ header_height }}px;
+    --header-padding-top: {{ padding_top }}px;
+    --header-padding-bottom: {{ padding_bottom }}px;
+    --header-container-max: {{ container_max }};
+    --header-logo-max-width: {{ logo_max_width }}px;
+    --header-logo-mobile-max-width: {{ logo_mobile_max_width }}px;
+
+    /* Logo position (used by grid template-areas in CSS) */
+    --header-logo-position: {{ logo_position }};
+
+    /* Menu */
+    --header-menu-alignment: {{ menu_alignment }};
+    --header-menu-spacing: {{ menu_spacing }}px;
+    --header-menu-letter-spacing: {{ menu_letter_spacing }}px;
+    --header-menu-hover-style: {{ hover_style }};
+
+    /* Sticky */
+    --header-sticky-behavior: {{ sticky_behavior }};
+    --header-shrink-size: {{ shrink_size }}%;
+    --header-shrink-logo-size: {{ shrink_logo_size }}%;
+    --header-shrink-height: calc(var(--header-height) * {{ shrink_size | divided_by: 100.0 }});
+
+    /* Animation */
+    --header-hover-delay: {{ hover_delay }}ms;
+    --header-animation-duration: {{ animation_duration }}ms;
+    --header-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Background & border */
+    --header-background: {% if use_custom_bg %}{{ header_background }}{% else %}rgb(var(--color-background)){% endif %};
+    --header-border-color: {{ border_color }};
+    --header-border-width: {% if show_border %}1px{% else %}0{% endif %};
+
+    /* Transparent header */
+    --header-transparent-text: {{ transparent_text }};
+    --header-is-transparent: {% if is_transparent %}1{% else %}0{% endif %};
+  }
+
+  {%- if is_transparent -%}
+    /* Transparent header active for this template */
+    #shopify-section-{{ section_id }} {
+      --header-background: transparent;
+      --header-text-color: {{ transparent_text }};
+    }
+    #shopify-section-{{ section_id }}.header-premium {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+    }
+  {%- endif -%}
+
+  {%- comment -%} Sticky behavior modifiers {%- endcomment -%}
+  {%- if sticky_behavior == 'always' -%}
+    #shopify-section-{{ section_id }}.header-premium {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+  {%- elsif sticky_behavior == 'scroll-up' -%}
+    #shopify-section-{{ section_id }}.header-premium {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      transition: transform var(--header-animation-duration) var(--header-easing);
+    }
+    #shopify-section-{{ section_id }}.header-premium[data-scroll-direction="down"] {
+      transform: translateY(-100%);
+    }
+  {%- elsif sticky_behavior == 'shrink' -%}
+    #shopify-section-{{ section_id }}.header-premium {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      transition: height var(--header-animation-duration) var(--header-easing),
+                  background var(--header-animation-duration) var(--header-easing);
+    }
+    #shopify-section-{{ section_id }}.header-premium[data-shrunk="true"] {
+      --header-height: var(--header-shrink-height);
+    }
+    #shopify-section-{{ section_id }}.header-premium[data-shrunk="true"] .header-premium__logo img {
+      transform: scale(var(--header-shrink-logo-size));
+      transform-origin: var(--header-logo-position) center;
+      transition: transform var(--header-animation-duration) var(--header-easing);
+    }
+  {%- endif -%}
+
+  {%- comment -%} Mobile responsive (always last to override desktop) {%- endcomment -%}
+  @media (max-width: 749px) {
+    #shopify-section-{{ section_id }} {
+      --header-logo-max-width: var(--header-logo-mobile-max-width);
+      --header-padding-top: 12px;
+      --header-padding-bottom: 12px;
+    }
+  }
+{%- endstyle -%}
