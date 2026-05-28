@@ -1,0 +1,46 @@
+{%- comment -%}
+  Mega menu Layout 1: Simple dropdown (links only)
+  -------------------------------------------------
+  Vertical list of links from the menu item's children.
+  No images, no columns - clean link list.
+
+  @param {array} blocks - Section blocks array
+  @param {object} menu_item - Current parent menu link
+  @param {number} columns - Number of columns (unused in layout-1)
+
+  @example
+  {%- render 'mega-menu-layout-1', blocks: section.blocks, menu_item: link, columns: 1 -%}
+{%- endcomment -%}
+
+{%- if menu_item.links.size > 0 -%}
+  <div class="mega-menu-layout mega-menu-layout--1">
+    <ul class="mega-menu-layout__list" role="list">
+      {%- for link in menu_item.links -%}
+        <li class="mega-menu-layout__item">
+          <a
+            class="mega-menu-layout__link{% if link.active %} mega-menu-layout__link--active{% endif %}"
+            href="{{ link.url }}"
+            {% if link.active %}aria-current="page"{% endif %}
+          >
+            <span class="mega-menu-layout__link-text">{{ link.title | escape }}</span>
+          </a>
+          {%- if link.links.size > 0 -%}
+            <ul class="mega-menu-layout__sublist" role="list">
+              {%- for child_link in link.links -%}
+                <li class="mega-menu-layout__subitem">
+                  <a
+                    class="mega-menu-layout__link mega-menu-layout__link--child{% if child_link.active %} mega-menu-layout__link--active{% endif %}"
+                    href="{{ child_link.url }}"
+                    {% if child_link.active %}aria-current="page"{% endif %}
+                  >
+                    <span class="mega-menu-layout__link-text">{{ child_link.title | escape }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- endif -%}

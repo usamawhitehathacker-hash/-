@@ -1,0 +1,26 @@
+{%- comment -%}
+  Menu item badge renderer
+  Called by: blocks/mega-menu-column.liquid
+  Parameter: label (string) — "new", "sale", "hot", or a discount like "-30%"
+{%- endcomment -%}
+
+{%- if label != blank -%}
+  {%- liquid
+    assign badge_class = 'menu-badge'
+    assign display_text = label
+    case label
+      when 'new'
+        assign badge_class = badge_class | append: ' menu-badge--new'
+        assign display_text = 'New'
+      when 'sale'
+        assign badge_class = badge_class | append: ' menu-badge--sale'
+        assign display_text = 'Sale'
+      when 'hot'
+        assign badge_class = badge_class | append: ' menu-badge--hot'
+        assign display_text = 'Hot'
+      else
+        assign badge_class = badge_class | append: ' menu-badge--discount'
+    endcase
+  -%}
+  <span class="{{ badge_class }}">{{ display_text }}</span>
+{%- endif -%}

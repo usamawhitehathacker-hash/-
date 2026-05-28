@@ -1,0 +1,27 @@
+{%- comment -%}
+  CSS grid wrapper for mega menu layouts.
+  Renders child content in 2-6 columns.
+
+  @param {number} columns - Number of columns (default: 4)
+  @param {number} gap - Gap in px (default: 24)
+  @param {string} class - Additional CSS class (optional)
+
+  @example
+  {%- render 'mega-menu-grid', columns: 4, gap: 24, class: 'my-custom-class' -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign columns = columns | default: 4
+  assign gap = gap | default: 24
+  assign grid_class = 'mega-menu-grid mega-menu-grid--cols-' | append: columns
+  if class != blank
+    assign grid_class = grid_class | append: ' ' | append: class
+  endif
+-%}
+
+<div
+  class="{{ grid_class }}"
+  style="--mega-menu-cols: {{ columns }}; --mega-menu-gap: {{ gap }}px;"
+>
+  {{ content }}
+</div>

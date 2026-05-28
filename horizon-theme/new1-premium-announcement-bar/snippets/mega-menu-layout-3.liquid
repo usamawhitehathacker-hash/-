@@ -1,0 +1,47 @@
+{%- comment -%}
+  Mega menu Layout 3: Multi-column with image
+  ---------------------------------------------
+  Grid with columns on left (2/3) and image banner on right (1/3).
+  Renders mega-menu-column blocks and mega-menu-image-banner blocks.
+
+  @param {array} blocks - Section blocks array
+  @param {object} menu_item - Current parent menu link
+  @param {number} columns - Number of columns for the link section (default: 4)
+
+  @example
+  {%- render 'mega-menu-layout-3', blocks: section.blocks, menu_item: link, columns: 4 -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign columns = columns | default: 4
+  assign column_cols = columns | minus: 1 | at_least: 2
+-%}
+
+<div class="mega-menu-layout mega-menu-layout--3">
+  <div class="mega-menu-layout__split">
+    <div class="mega-menu-layout__columns">
+      <div
+        class="mega-menu-grid mega-menu-grid--cols-{{ column_cols }}"
+        style="--mega-menu-cols: {{ column_cols }}; --mega-menu-gap: 24px;"
+      >
+        {%- for block in blocks -%}
+          {%- if block.type == 'mega-menu-column' -%}
+            <div class="mega-menu-grid__item" {{ block.shopify_attributes }}>
+              {%- render 'mega-menu-column-content', block: block -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="mega-menu-layout__image-banner">
+      {%- for block in blocks -%}
+        {%- if block.type == 'mega-menu-image-banner' -%}
+          <div class="mega-menu-layout__banner-item" {{ block.shopify_attributes }}>
+            {%- render 'mega-menu-image-banner-content', block: block -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>

@@ -10,10 +10,36 @@
   @param {number} [content_aspect_ratio] - Aspect ratio for content images.
   @param {number} [image_border_radius] - Border radius for content images.
   @param {object} [section] - The section object.
+  @param {string} [layout] - Premium layout variant: 'layout-1' through 'layout-5'. If set, renders the corresponding layout snippet.
+  @param {array} [blocks] - Section blocks array (used with layout parameter).
+  @param {number} [columns] - Number of columns for premium layouts (default: 4).
 
   @example
   {% render 'mega-menu-list', parent_link: link, id: 'MegaMenuList-1', grid_columns_count: 6, menu_content_type: 'featured_products' %}
+  {% render 'mega-menu-list', parent_link: link, id: 'MegaMenuList-1', layout: 'layout-2', blocks: section.blocks, columns: 4 %}
 {%- enddoc -%}
+
+{%- comment -%}
+  Premium layout routing: if a layout parameter is provided, render the
+  corresponding layout snippet and skip the default mega menu rendering.
+{%- endcomment -%}
+{%- if layout != blank -%}
+  {%- liquid
+    assign layout_columns = columns | default: 4
+  -%}
+  {%- case layout -%}
+    {%- when 'layout-1' -%}
+      {%- render 'mega-menu-layout-1', blocks: blocks, menu_item: parent_link, columns: layout_columns -%}
+    {%- when 'layout-2' -%}
+      {%- render 'mega-menu-layout-2', blocks: blocks, menu_item: parent_link, columns: layout_columns -%}
+    {%- when 'layout-3' -%}
+      {%- render 'mega-menu-layout-3', blocks: blocks, menu_item: parent_link, columns: layout_columns -%}
+    {%- when 'layout-4' -%}
+      {%- render 'mega-menu-layout-4', blocks: blocks, menu_item: parent_link, columns: layout_columns -%}
+    {%- when 'layout-5' -%}
+      {%- render 'mega-menu-layout-5', blocks: blocks, menu_item: parent_link, columns: layout_columns -%}
+  {%- endcase -%}
+{%- else -%}
 
 {% liquid
   comment
@@ -343,3 +369,5 @@
       </ul>
     </span>
 {% endcase %}
+
+{%- endif -%}

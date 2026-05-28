@@ -1,0 +1,67 @@
+{%- comment -%}
+  Mega menu Layout 5: Full-width with promo banner
+  --------------------------------------------------
+  Full container width. Renders all block types:
+  columns + images + products + collections + promo.
+  Promo callout block at bottom full-width.
+
+  @param {array} blocks - Section blocks array
+  @param {object} menu_item - Current parent menu link
+  @param {number} columns - Number of columns (default: 4)
+
+  @example
+  {%- render 'mega-menu-layout-5', blocks: section.blocks, menu_item: link, columns: 4 -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign columns = columns | default: 4
+  assign has_promo = false
+  for block in blocks
+    if block.type == 'mega-menu-promo'
+      assign has_promo = true
+      break
+    endif
+  endfor
+-%}
+
+<div class="mega-menu-layout mega-menu-layout--5 mega-menu-layout--full-width">
+  <div class="mega-menu-layout__main">
+    <div
+      class="mega-menu-grid mega-menu-grid--cols-{{ columns }}"
+      style="--mega-menu-cols: {{ columns }}; --mega-menu-gap: 24px;"
+    >
+      {%- for block in blocks -%}
+        {%- case block.type -%}
+          {%- when 'mega-menu-column' -%}
+            <div class="mega-menu-grid__item" {{ block.shopify_attributes }}>
+              {%- render 'mega-menu-column-content', block: block -%}
+            </div>
+          {%- when 'mega-menu-image-banner' -%}
+            <div class="mega-menu-grid__item" {{ block.shopify_attributes }}>
+              {%- render 'mega-menu-image-banner-content', block: block -%}
+            </div>
+          {%- when 'mega-menu-product' -%}
+            <div class="mega-menu-grid__item" {{ block.shopify_attributes }}>
+              {%- render 'mega-menu-product-content', block: block -%}
+            </div>
+          {%- when 'mega-menu-collection' -%}
+            <div class="mega-menu-grid__item" {{ block.shopify_attributes }}>
+              {%- render 'mega-menu-collection-content', block: block -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- if has_promo -%}
+    <div class="mega-menu-layout__promo">
+      {%- for block in blocks -%}
+        {%- if block.type == 'mega-menu-promo' -%}
+          <div class="mega-menu-layout__promo-item" {{ block.shopify_attributes }}>
+            {%- render 'mega-menu-promo-content', block: block -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>

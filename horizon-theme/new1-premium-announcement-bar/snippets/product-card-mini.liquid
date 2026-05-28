@@ -1,0 +1,66 @@
+{%- comment -%}
+  Compact product card for mega menu and small contexts.
+  Shows image + title + price in a small footprint.
+
+  @param {object} product - Product object to render
+  @param {boolean} show_price - Show price (default: true)
+  @param {boolean} show_vendor - Show vendor (default: false)
+  @param {number} image_width - Image width in px (default: 150)
+
+  @example
+  {%- render 'product-card-mini', product: product, show_price: true, show_vendor: false, image_width: 150 -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign show_price = show_price | default: true
+  assign show_vendor = show_vendor | default: false
+  assign image_width = image_width | default: 150
+  assign image_height = image_width
+  assign featured_image = product.featured_image
+-%}
+
+{%- if product != blank -%}
+  <a href="{{ product.url }}" class="product-card-mini">
+    <div class="product-card-mini__image">
+      {%- if featured_image != blank -%}
+        {{
+          featured_image
+          | image_url: width: image_width
+          | image_tag:
+            loading: 'lazy',
+            alt: featured_image.alt | default: product.title | escape,
+            width: image_width,
+            height: image_height,
+            sizes: '(min-width: 990px) ' | append: image_width | append: 'px, ' | append: image_width | append: 'px',
+            widths: '150, 300, 450',
+            class: 'product-card-mini__img'
+        }}
+      {%- else -%}
+        <div class="product-card-mini__placeholder">
+          {{ 'product-1' | placeholder_svg_tag: 'product-card-mini__placeholder-svg' }}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="product-card-mini__info">
+      <p class="product-card-mini__title">{{ product.title | escape | truncate: 60 }}</p>
+
+      {%- if show_vendor and product.vendor != blank -%}
+        <p class="product-card-mini__vendor">{{ product.vendor | escape }}</p>
+      {%- endif -%}
+
+      {%- if show_price -%}
+        <div class="product-card-mini__price">
+          {%- if product.compare_at_price > product.price -%}
+            <span class="product-card-mini__price--sale">{{ product.price | money }}</span>
+            <span class="product-card-mini__price--compare">
+              <s>{{ product.compare_at_price | money }}</s>
+            </span>
+          {%- else -%}
+            <span class="product-card-mini__price--regular">{{ product.price | money }}</span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </a>
+{%- endif -%}

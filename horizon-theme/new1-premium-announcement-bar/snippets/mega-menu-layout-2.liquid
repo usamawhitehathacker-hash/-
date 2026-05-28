@@ -1,0 +1,41 @@
+{%- comment -%}
+  Mega menu Layout 2: Multi-column
+  ---------------------------------
+  Renders blocks of type mega-menu-column in a grid.
+  Uses mega-menu-grid snippet for layout.
+
+  @param {array} blocks - Section blocks array
+  @param {object} menu_item - Current parent menu link
+  @param {number} columns - Number of columns (default: 4)
+
+  @example
+  {%- render 'mega-menu-layout-2', blocks: section.blocks, menu_item: link, columns: 4 -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign columns = columns | default: 4
+  assign has_columns = false
+  for block in blocks
+    if block.type == 'mega-menu-column'
+      assign has_columns = true
+      break
+    endif
+  endfor
+-%}
+
+{%- if has_columns -%}
+  <div class="mega-menu-layout mega-menu-layout--2">
+    <div
+      class="mega-menu-grid mega-menu-grid--cols-{{ columns }}"
+      style="--mega-menu-cols: {{ columns }}; --mega-menu-gap: 24px;"
+    >
+      {%- for block in blocks -%}
+        {%- if block.type == 'mega-menu-column' -%}
+          <div class="mega-menu-grid__item" {{ block.shopify_attributes }}>
+            {%- render 'mega-menu-column-content', block: block -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}

@@ -1,0 +1,58 @@
+{%- comment -%}
+  Mega menu Layout 4: Multi-column with featured products
+  --------------------------------------------------------
+  Renders mega-menu-column blocks + mega-menu-product blocks.
+  Products shown at the bottom or right side.
+
+  @param {array} blocks - Section blocks array
+  @param {object} menu_item - Current parent menu link
+  @param {number} columns - Number of columns (default: 4)
+
+  @example
+  {%- render 'mega-menu-layout-4', blocks: section.blocks, menu_item: link, columns: 4 -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign columns = columns | default: 4
+  assign has_products = false
+  for block in blocks
+    if block.type == 'mega-menu-product'
+      assign has_products = true
+      break
+    endif
+  endfor
+-%}
+
+<div class="mega-menu-layout mega-menu-layout--4">
+  <div class="mega-menu-layout__columns">
+    <div
+      class="mega-menu-grid mega-menu-grid--cols-{{ columns }}"
+      style="--mega-menu-cols: {{ columns }}; --mega-menu-gap: 24px;"
+    >
+      {%- for block in blocks -%}
+        {%- if block.type == 'mega-menu-column' -%}
+          <div class="mega-menu-grid__item" {{ block.shopify_attributes }}>
+            {%- render 'mega-menu-column-content', block: block -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- if has_products -%}
+    <div class="mega-menu-layout__products">
+      <div
+        class="mega-menu-grid mega-menu-grid--cols-{{ columns }}"
+        style="--mega-menu-cols: {{ columns }}; --mega-menu-gap: 16px;"
+      >
+        {%- for block in blocks -%}
+          {%- if block.type == 'mega-menu-product' -%}
+            <div class="mega-menu-grid__item" {{ block.shopify_attributes }}>
+              {%- render 'mega-menu-product-content', block: block -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+</div>
