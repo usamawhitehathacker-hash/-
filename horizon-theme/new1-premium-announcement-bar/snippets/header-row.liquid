@@ -1,3 +1,15 @@
+{%- comment -%}
+  Header Row (Enhanced for Premium)
+  Parameters:
+    - section: the header section object
+    - position: 'main' (default) -- for future multi-row support (top-row, main-row, bottom-row)
+
+  This snippet renders a single responsive header row with three columns (left, center, right).
+  In the original header, it handles element ordering per position/row settings.
+  In the Premium header (sections/header.liquid rewrite), this row is the main composition
+  unit -- the CSS grid layout in header-premium handles logo/nav/actions placement directly.
+{%- endcomment -%}
+
 {% doc %}
   Renders a responsive header row with three columns (left, center, right).
   Organizes header elements based on their configured position and row placement
