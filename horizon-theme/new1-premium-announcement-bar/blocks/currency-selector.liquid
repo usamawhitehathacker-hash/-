@@ -1,0 +1,220 @@
+{%- comment -%}
+  Currency/Country Selector Block (PUBLIC)
+  ----------------------------------------
+  Standalone currency/country selector for use inside header or top bar.
+  Gives customers country/region switching via Shopify's localization form.
+
+  Pattern: Prestige / Turbo / Enterprise multi-currency selector
+
+  Settings:
+    - style (select): "dropdown" | "popover" - display style
+    - show_country_flag (checkbox): Show country flag emoji
+    - show_currency_code (checkbox): Show currency ISO code
+    - label_style (select): "name" | "code" | "symbol" - current selection display
+{%- endcomment -%}
+
+{%- liquid
+  assign style = block.settings.style | default: 'dropdown'
+  assign show_flag = block.settings.show_country_flag
+  assign show_code = block.settings.show_currency_code
+  assign label_style = block.settings.label_style | default: 'name'
+  assign current_country = localization.country
+  assign form_id = 'CurrencyForm-' | append: block.id
+-%}
+
+{%- if localization.available_countries.size > 1 -%}
+  <div
+    class="currency-selector currency-selector--{{ style }}"
+    {{ block.shopify_attributes }}
+  >
+    {%- if style == 'popover' -%}
+      <div class="currency-selector__popover" data-popover>
+        <button
+          type="button"
+          class="currency-selector__trigger"
+          aria-expanded="false"
+          aria-haspopup="listbox"
+          aria-label="{{ 'header.localization.country_label' | t }}"
+        >
+          <span class="currency-selector__current">
+            {%- if show_flag -%}
+              <span class="currency-selector__flag" aria-hidden="true">{{ current_country.iso_code | country_flag }}</span>
+            {%- endif -%}
+            <span class="currency-selector__label">
+              {%- case label_style -%}
+                {%- when 'name' -%}
+                  {{- current_country.name -}}
+                {%- when 'code' -%}
+                  {{- current_country.currency.iso_code -}}
+                {%- when 'symbol' -%}
+                  {{- current_country.currency.symbol -}}
+              {%- endcase -%}
+            </span>
+            {%- if show_code -%}
+              <span class="currency-selector__code">({{ current_country.currency.iso_code }})</span>
+            {%- endif -%}
+          </span>
+          <svg class="currency-selector__caret" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div class="currency-selector__panel" role="listbox" aria-label="{{ 'header.localization.country_label' | t }}" hidden>
+          {%- form 'localization', id: form_id -%}
+            <ul class="currency-selector__list" role="list">
+              {%- for country in localization.available_countries -%}
+                <li
+                  class="currency-selector__option{% if country.iso_code == current_country.iso_code %} currency-selector__option--active{% endif %}"
+                  role="option"
+                  aria-selected="{% if country.iso_code == current_country.iso_code %}true{% else %}false{% endif %}"
+                  data-value="{{ country.iso_code }}"
+                  tabindex="0"
+                >
+                  {%- if show_flag -%}
+                    <span class="currency-selector__flag" aria-hidden="true">{{ country.iso_code | country_flag }}</span>
+                  {%- endif -%}
+                  <span class="currency-selector__option-name">{{ country.name }}</span>
+                  {%- if show_code -%}
+                    <span class="currency-selector__option-code">({{ country.currency.iso_code }} {{ country.currency.symbol }})</span>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+            <input type="hidden" name="country_code" value="{{ current_country.iso_code }}">
+          {%- endform -%}
+        </div>
+      </div>
+
+    {%- else -%}
+      {%- comment -%} Dropdown style (default) {%- endcomment -%}
+      {%- form 'localization', id: form_id -%}
+        <div class="currency-selector__dropdown">
+          <label class="currency-selector__dropdown-label visually-hidden" for="CurrencySelect-{{ block.id }}">
+            {{- 'header.localization.country_label' | t -}}
+          </label>
+          {%- if show_flag -%}
+            <span class="currency-selector__flag currency-selector__flag--current" aria-hidden="true">{{ current_country.iso_code | country_flag }}</span>
+          {%- endif -%}
+          <select
+            id="CurrencySelect-{{ block.id }}"
+            class="currency-selector__select"
+            name="country_code"
+            aria-label="{{ 'header.localization.country_label' | t }}"
+          >
+            {%- for country in localization.available_countries -%}
+              <option
+                value="{{ country.iso_code }}"
+                {% if country.iso_code == current_country.iso_code %}selected{% endif %}
+              >
+                {%- case label_style -%}
+                  {%- when 'name' -%}
+                    {{- country.name -}}
+                  {%- when 'code' -%}
+                    {{- country.currency.iso_code -}}
+                  {%- when 'symbol' -%}
+                    {{- country.currency.symbol -}}
+                {%- endcase -%}
+                {%- if show_code %} ({{ country.currency.iso_code }} {{ country.currency.symbol }}){% endif -%}
+              </option>
+            {%- endfor -%}
+          </select>
+          <button type="submit" class="currency-selector__submit visually-hidden">
+            {{- 'header.localization.update_button' | t -}}
+          </button>
+        </div>
+      {%- endform -%}
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+<script>
+  (function() {
+    var selector = document.querySelector('.currency-selector--popover [data-popover]');
+    if (!selector) return;
+
+    var trigger = selector.querySelector('.currency-selector__trigger');
+    var panel = selector.querySelector('.currency-selector__panel');
+    var options = selector.querySelectorAll('.currency-selector__option');
+    var hiddenInput = selector.querySelector('input[name="country_code"]');
+    var form = selector.querySelector('form');
+
+    function togglePanel(open) {
+      var isOpen = typeof open === 'boolean' ? open : panel.hidden;
+      panel.hidden = !isOpen;
+      trigger.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    trigger.addEventListener('click', function() {
+      togglePanel();
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!selector.contains(e.target)) {
+        togglePanel(false);
+      }
+    });
+
+    options.forEach(function(option) {
+      option.addEventListener('click', function() {
+        hiddenInput.value = this.dataset.value;
+        form.submit();
+      });
+      option.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          hiddenInput.value = this.dataset.value;
+          form.submit();
+        }
+      });
+    });
+
+    trigger.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        togglePanel(false);
+        trigger.focus();
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:premium_header.names.currency_selector",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "dropdown", "label": "Dropdown" },
+        { "value": "popover", "label": "Popover" }
+      ],
+      "default": "dropdown"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_country_flag",
+      "label": "Show country flag",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_currency_code",
+      "label": "Show currency code",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "label_style",
+      "label": "Label style",
+      "options": [
+        { "value": "name", "label": "Country name" },
+        { "value": "code", "label": "Currency code" },
+        { "value": "symbol", "label": "Currency symbol" }
+      ],
+      "default": "name"
+    }
+  ]
+}
+{% endschema %}

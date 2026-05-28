@@ -1,0 +1,198 @@
+{%- comment -%}
+  Language Selector Block (PUBLIC)
+  --------------------------------
+  Standalone language selector for use inside header or top bar.
+  Gives customers language switching via Shopify's localization form.
+
+  Pattern: Prestige / Turbo / Enterprise multi-language selector
+
+  Settings:
+    - style (select): "dropdown" | "popover" - display style
+    - show_native_name (checkbox): Show language in its own script (endonym)
+    - show_iso_code (checkbox): Show "EN", "FR" etc.
+{%- endcomment -%}
+
+{%- liquid
+  assign style = block.settings.style | default: 'dropdown'
+  assign show_native_name = block.settings.show_native_name
+  assign show_iso_code = block.settings.show_iso_code
+  assign current_language = localization.language
+  assign form_id = 'LanguageForm-' | append: block.id
+-%}
+
+{%- if localization.available_languages.size > 1 -%}
+  <div
+    class="language-selector language-selector--{{ style }}"
+    {{ block.shopify_attributes }}
+  >
+    {%- if style == 'popover' -%}
+      <div class="language-selector__popover" data-popover>
+        <button
+          type="button"
+          class="language-selector__trigger"
+          aria-expanded="false"
+          aria-haspopup="listbox"
+          aria-label="{{ 'header.localization.language_label' | t }}"
+        >
+          <span class="language-selector__current">
+            {%- if show_native_name -%}
+              {{- current_language.endonym_name | capitalize -}}
+            {%- else -%}
+              {{- current_language.name -}}
+            {%- endif -%}
+            {%- if show_iso_code -%}
+              <span class="language-selector__iso">({{ current_language.iso_code | upcase }})</span>
+            {%- endif -%}
+          </span>
+          <svg class="language-selector__caret" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div class="language-selector__panel" role="listbox" aria-label="{{ 'header.localization.language_label' | t }}" hidden>
+          {%- form 'localization', id: form_id -%}
+            <ul class="language-selector__list" role="list">
+              {%- for language in localization.available_languages -%}
+                <li
+                  class="language-selector__option{% if language.iso_code == current_language.iso_code %} language-selector__option--active{% endif %}"
+                  role="option"
+                  aria-selected="{% if language.iso_code == current_language.iso_code %}true{% else %}false{% endif %}"
+                  data-value="{{ language.iso_code }}"
+                  lang="{{ language.iso_code }}"
+                  tabindex="0"
+                >
+                  <span class="language-selector__option-name">
+                    {%- if show_native_name -%}
+                      {{- language.endonym_name | capitalize -}}
+                    {%- else -%}
+                      {{- language.name -}}
+                    {%- endif -%}
+                  </span>
+                  {%- if show_iso_code -%}
+                    <span class="language-selector__option-code">({{ language.iso_code | upcase }})</span>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+            <input type="hidden" name="locale_code" value="{{ current_language.iso_code }}">
+          {%- endform -%}
+        </div>
+      </div>
+
+    {%- else -%}
+      {%- comment -%} Dropdown style (default) {%- endcomment -%}
+      {%- form 'localization', id: form_id -%}
+        <div class="language-selector__dropdown">
+          <label class="language-selector__dropdown-label visually-hidden" for="LanguageSelect-{{ block.id }}">
+            {{- 'header.localization.language_label' | t -}}
+          </label>
+          <select
+            id="LanguageSelect-{{ block.id }}"
+            class="language-selector__select"
+            name="locale_code"
+            aria-label="{{ 'header.localization.language_label' | t }}"
+          >
+            {%- for language in localization.available_languages -%}
+              <option
+                value="{{ language.iso_code }}"
+                lang="{{ language.iso_code }}"
+                {% if language.iso_code == current_language.iso_code %}selected{% endif %}
+              >
+                {%- if show_native_name -%}
+                  {{- language.endonym_name | capitalize -}}
+                {%- else -%}
+                  {{- language.name -}}
+                {%- endif -%}
+                {%- if show_iso_code %} ({{ language.iso_code | upcase }}){% endif -%}
+              </option>
+            {%- endfor -%}
+          </select>
+          <button type="submit" class="language-selector__submit visually-hidden">
+            {{- 'header.localization.update_button' | t -}}
+          </button>
+        </div>
+      {%- endform -%}
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+<script>
+  (function() {
+    var selector = document.querySelector('.language-selector--popover [data-popover]');
+    if (!selector) return;
+
+    var trigger = selector.querySelector('.language-selector__trigger');
+    var panel = selector.querySelector('.language-selector__panel');
+    var options = selector.querySelectorAll('.language-selector__option');
+    var hiddenInput = selector.querySelector('input[name="locale_code"]');
+    var form = selector.querySelector('form');
+
+    function togglePanel(open) {
+      var isOpen = typeof open === 'boolean' ? open : panel.hidden;
+      panel.hidden = !isOpen;
+      trigger.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    trigger.addEventListener('click', function() {
+      togglePanel();
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!selector.contains(e.target)) {
+        togglePanel(false);
+      }
+    });
+
+    options.forEach(function(option) {
+      option.addEventListener('click', function() {
+        hiddenInput.value = this.dataset.value;
+        form.submit();
+      });
+      option.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          hiddenInput.value = this.dataset.value;
+          form.submit();
+        }
+      });
+    });
+
+    trigger.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        togglePanel(false);
+        trigger.focus();
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:premium_header.names.language_selector",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "dropdown", "label": "Dropdown" },
+        { "value": "popover", "label": "Popover" }
+      ],
+      "default": "dropdown"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_native_name",
+      "label": "Show native language name",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_iso_code",
+      "label": "Show ISO code",
+      "default": false
+    }
+  ]
+}
+{% endschema %}
