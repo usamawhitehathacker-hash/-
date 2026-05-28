@@ -1,0 +1,286 @@
+{%- comment -%}
+  Full-screen search overlay (Premium)
+  Pattern: Prestige / Impact full-screen search
+  Called by: snippets/header-actions.liquid (Step 29)
+
+  Features:
+    - Full viewport overlay with backdrop blur
+    - Large search input, auto-focused
+    - Popular searches (from settings)
+    - Predictive results integration
+    - Keyboard shortcut "/" to open
+    - Escape to close
+{%- endcomment -%}
+
+<div class="search-overlay"
+     id="SearchOverlay"
+     role="dialog"
+     aria-modal="true"
+     aria-label="{{ 'header.search_overlay.title' | t }}"
+     hidden
+>
+  <div class="search-overlay__backdrop" data-search-overlay-close></div>
+
+  <div class="search-overlay__container">
+    <div class="search-overlay__header">
+      <p class="search-overlay__title">{{ 'header.search_overlay.title' | t }}</p>
+      <button type="button" class="search-overlay__close" data-search-overlay-close
+              aria-label="{{ 'header.search.close' | t }}">
+        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="m3 3 10 10M13 3 3 13"/>
+        </svg>
+      </button>
+    </div>
+
+    <form class="search-overlay__form" action="{{ routes.search_url }}" method="get" role="search">
+      <div class="search-overlay__input-wrapper">
+        <svg class="search-overlay__icon" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/>
+        </svg>
+        <input
+          class="search-overlay__input"
+          type="search"
+          name="q"
+          placeholder="{{ 'header.search.placeholder' | t }}"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          data-search-overlay-input
+          aria-label="{{ 'header.search.placeholder' | t }}"
+        >
+        <button type="button" class="search-overlay__clear" data-search-overlay-clear hidden aria-label="{{ 'header.search.clear' | t }}">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="m4 4 8 8M12 4 4 12"/>
+          </svg>
+        </button>
+      </div>
+      <button type="submit" class="search-overlay__submit visually-hidden">{{ 'header.search.submit' | t }}</button>
+    </form>
+
+    {%- comment -%} Popular searches {%- endcomment -%}
+    {%- if settings.header_show_popular_searches -%}
+      {%- assign popular_terms = settings.header_popular_search_terms | split: ',' -%}
+      {%- if popular_terms.size > 0 -%}
+        <div class="search-overlay__popular" data-search-overlay-popular>
+          <p class="search-overlay__popular-label">{{ 'header.search.popular_searches' | t }}</p>
+          <ul class="search-overlay__popular-list" role="list">
+            {%- for term in popular_terms -%}
+              {%- assign clean_term = term | strip -%}
+              {%- if clean_term != blank -%}
+                <li>
+                  <a class="search-overlay__popular-link" href="{{ routes.search_url }}?q={{ clean_term | url_encode }}">
+                    {{ clean_term | escape }}
+                  </a>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- comment -%} Predictive results container (populated by JS) {%- endcomment -%}
+    <div class="search-overlay__results" data-search-overlay-results aria-live="polite"></div>
+
+    {%- comment -%} Keyboard shortcut hint {%- endcomment -%}
+    <p class="search-overlay__hint">{{ 'header.search_overlay.shortcut_hint' | t }}</p>
+  </div>
+</div>
+
+{% stylesheet %}
+  .search-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .search-overlay[hidden] {
+    display: flex;
+    visibility: hidden;
+  }
+
+  .search-overlay:not([hidden]) {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .search-overlay__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  .search-overlay:not([hidden]) .search-overlay__backdrop {
+    opacity: 1;
+  }
+
+  .search-overlay__container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 15vh;
+    padding: var(--padding-2xl, 2rem);
+    background-color: var(--color-background, #fff);
+    border-radius: var(--style-border-radius-popover, 8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 200ms ease, transform 200ms ease;
+
+    @media screen and (max-width: 749px) {
+      max-width: 100%;
+      margin-top: 0;
+      min-height: 100dvh;
+      border-radius: 0;
+    }
+  }
+
+  .search-overlay:not([hidden]) .search-overlay__container {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .search-overlay__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--margin-lg, 1.5rem);
+  }
+
+  .search-overlay__title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .search-overlay__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  .search-overlay__form {
+    margin-bottom: var(--margin-lg, 1.5rem);
+  }
+
+  .search-overlay__input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border, #e5e5e5);
+    border-radius: var(--style-border-radius-buttons-primary, 4px);
+    transition: border-color 150ms ease;
+  }
+
+  .search-overlay__input-wrapper:focus-within {
+    border-color: var(--color-foreground, #000);
+  }
+
+  .search-overlay__icon {
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  .search-overlay__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1.5rem;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+  }
+
+  .search-overlay__input::placeholder {
+    color: inherit;
+    opacity: 0.4;
+  }
+
+  .search-overlay__clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.5;
+    transition: opacity 150ms ease;
+  }
+
+  .search-overlay__clear:hover {
+    opacity: 1;
+  }
+
+  .search-overlay__popular {
+    margin-bottom: var(--margin-lg, 1.5rem);
+  }
+
+  .search-overlay__popular-label {
+    margin: 0 0 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+  }
+
+  .search-overlay__popular-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .search-overlay__popular-link {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    text-decoration: none;
+    color: inherit;
+    background: var(--color-foreground-muted, rgba(0, 0, 0, 0.05));
+    border-radius: 999px;
+    transition: background 150ms ease;
+  }
+
+  .search-overlay__popular-link:hover {
+    background: var(--color-foreground-muted, rgba(0, 0, 0, 0.1));
+  }
+
+  .search-overlay__results:empty {
+    display: none;
+  }
+
+  .search-overlay__hint {
+    margin: var(--margin-lg, 1.5rem) 0 0;
+    font-size: 0.75rem;
+    opacity: 0.4;
+    text-align: center;
+  }
+
+  @media screen and (max-width: 749px) {
+    .search-overlay__input {
+      font-size: 1.125rem;
+    }
+  }
+{% endstylesheet %}

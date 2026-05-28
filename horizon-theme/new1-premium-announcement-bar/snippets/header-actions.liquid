@@ -710,4 +710,33 @@
       margin-inline-start: 0;
     }
   }
+
+  .header-actions__wishlist {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 150ms ease;
+  }
+
+  .header-actions__wishlist:hover {
+    opacity: 0.7;
+  }
 {% endstylesheet %}
+
+{%- comment -%} Premium search overlay integration {%- endcomment -%}
+{%- if settings.header_search_style == 'overlay' -%}
+  {%- render 'header-search-overlay' -%}
+{%- endif -%}
+
+{%- comment -%} Wishlist icon (premium) {%- endcomment -%}
+{%- if settings.header_show_wishlist -%}
+  <a class="header-actions__wishlist" href="/pages/wishlist" aria-label="{{ 'header.wishlist.open' | t }}">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <path d="M8 14s-5.5-3.5-5.5-7A3.5 3.5 0 0 1 8 4.5 3.5 3.5 0 0 1 13.5 7C13.5 10.5 8 14 8 14z"/>
+    </svg>
+  </a>
+{%- endif -%}

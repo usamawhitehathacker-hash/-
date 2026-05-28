@@ -11,6 +11,11 @@
   {% render 'header-drawer', linklist: section.settings.menu, class: 'header-drawer--mobile' %}
 {%- enddoc -%}
 
+{%- comment -%} Premium drawer routing -- if premium header settings exist, use premium drawer {%- endcomment -%}
+{%- if settings.header_drawer_position != blank -%}
+  {%- render 'header-mobile-drawer-premium', menu: linklist, section: section -%}
+{%- else -%}
+
 {% liquid
   assign block_settings = block.settings
   assign max_featured_items = 4
@@ -1411,3 +1416,5 @@
     transform: none;
   }
 {% endstylesheet %}
+
+{%- endif -%}

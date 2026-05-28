@@ -1,0 +1,325 @@
+{%- comment -%}
+  Premium Mobile Drawer
+  Pattern: Concept + Impulse + Enterprise
+  Called by: snippets/header-drawer.liquid (Step 27)
+
+  Parameters:
+    - menu: the navigation menu object (linklist)
+    - section: the header section object
+{%- endcomment -%}
+
+<div class="drawer-premium drawer-premium--{{ settings.header_drawer_position | default: 'left' }}"
+     id="DrawerPremium"
+     role="dialog"
+     aria-modal="true"
+     aria-label="{{ 'header.drawer.title' | t }}"
+     hidden
+>
+  <div class="drawer-premium__overlay" data-drawer-overlay></div>
+
+  <div class="drawer-premium__panel">
+    {%- comment -%} Header with close button {%- endcomment -%}
+    <div class="drawer-premium__header">
+      <p class="drawer-premium__title">{{ 'header.drawer.title' | t }}</p>
+      <button type="button" class="drawer-premium__close" data-drawer-close aria-label="{{ 'header.navigation.close_menu' | t }}">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="m3 3 10 10M13 3 3 13"/>
+        </svg>
+      </button>
+    </div>
+
+    {%- comment -%} Navigation (multi-level) {%- endcomment -%}
+    <nav class="drawer-premium__nav" aria-label="{{ 'header.navigation.primary' | t }}">
+      <ul class="drawer-premium__list drawer-premium__list--level-0" role="list">
+        {%- for link in menu.links -%}
+          {%- liquid
+            assign raw_title = link.title
+            assign clean_title = raw_title
+            assign badge_label = ''
+            if raw_title contains '[NEW]'
+              assign clean_title = raw_title | replace: '[NEW]', '' | strip
+              assign badge_label = 'new'
+            elsif raw_title contains '[SALE]'
+              assign clean_title = raw_title | replace: '[SALE]', '' | strip
+              assign badge_label = 'sale'
+            elsif raw_title contains '[HOT]'
+              assign clean_title = raw_title | replace: '[HOT]', '' | strip
+              assign badge_label = 'hot'
+            endif
+          -%}
+          <li class="drawer-premium__item{% if link.links.size > 0 %} drawer-premium__item--has-children{% endif %}">
+            {%- if link.links.size > 0 -%}
+              <button type="button" class="drawer-premium__link drawer-premium__link--parent" aria-expanded="false" data-drawer-toggle>
+                <span>{{ clean_title | escape }}</span>
+                {%- if badge_label != '' -%}{%- render 'menu-badge', label: badge_label -%}{%- endif -%}
+                <svg class="drawer-premium__chevron" width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m2 2 4 4-4 4"/></svg>
+              </button>
+              <div class="drawer-premium__sublevel" data-drawer-sublevel hidden>
+                <button type="button" class="drawer-premium__back" data-drawer-back>
+                  <svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 10-4-4 4-4"/></svg>
+                  <span>{{ 'header.navigation.back' | t }}</span>
+                </button>
+                <p class="drawer-premium__sublevel-title">{{ clean_title | escape }}</p>
+                <ul class="drawer-premium__list drawer-premium__list--level-1" role="list">
+                  {%- for child_link in link.links -%}
+                    <li class="drawer-premium__item">
+                      <a class="drawer-premium__link" href="{{ child_link.url }}">{{ child_link.title | escape }}</a>
+                    </li>
+                  {%- endfor -%}
+                  <li class="drawer-premium__item drawer-premium__item--view-all">
+                    <a class="drawer-premium__link drawer-premium__link--view-all" href="{{ link.url }}">
+                      {{ 'header.mega_menu.view_all' | t }} <span aria-hidden="true">&rarr;</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            {%- else -%}
+              <a class="drawer-premium__link" href="{{ link.url }}">
+                <span>{{ clean_title | escape }}</span>
+                {%- if badge_label != '' -%}{%- render 'menu-badge', label: badge_label -%}{%- endif -%}
+              </a>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    {%- comment -%} Account section {%- endcomment -%}
+    {%- if settings.header_show_account -%}
+      <div class="drawer-premium__account">
+        <p class="drawer-premium__section-title">{{ 'header.drawer.account_section' | t }}</p>
+        {%- if customer -%}
+          <a class="drawer-premium__link" href="{{ routes.account_url }}">{{ 'header.account.my_account' | t }}</a>
+          <a class="drawer-premium__link" href="{{ routes.account_logout_url }}">{{ 'header.account.log_out' | t }}</a>
+        {%- else -%}
+          <a class="drawer-premium__link" href="{{ routes.account_login_url }}">{{ 'header.account.log_in' | t }}</a>
+          <a class="drawer-premium__link" href="{{ routes.account_register_url }}">{{ 'header.account.register' | t }}</a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Localization (country/language) {%- endcomment -%}
+    {%- if settings.header_drawer_show_localization -%}
+      <div class="drawer-premium__localization">
+        {%- render 'localization-form' -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Promo block {%- endcomment -%}
+    {%- if settings.header_drawer_show_promo -%}
+      <div class="drawer-premium__promo">
+        <p class="drawer-premium__promo-label">{{ 'header.drawer.promo_label' | t }}</p>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .drawer-premium {
+    --drawer-position: left;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .drawer-premium[hidden] {
+    display: block;
+    visibility: hidden;
+  }
+
+  .drawer-premium:not([hidden]) {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .drawer-premium--right {
+    --drawer-position: right;
+  }
+
+  .drawer-premium__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 250ms ease;
+  }
+
+  .drawer-premium:not([hidden]) .drawer-premium__overlay {
+    opacity: 1;
+  }
+
+  .drawer-premium__panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 320px;
+    max-width: 85vw;
+    background-color: var(--color-background, #fff);
+    color: var(--color-foreground, #000);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: transform 250ms ease;
+  }
+
+  .drawer-premium--left .drawer-premium__panel {
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  .drawer-premium--right .drawer-premium__panel {
+    right: 0;
+    transform: translateX(100%);
+  }
+
+  .drawer-premium:not([hidden]) .drawer-premium__panel {
+    transform: translateX(0);
+  }
+
+  .drawer-premium__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--padding-lg, 1rem);
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
+  }
+
+  .drawer-premium__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .drawer-premium__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  .drawer-premium__nav {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .drawer-premium__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .drawer-premium__item {
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
+  }
+
+  .drawer-premium__link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.875rem var(--padding-lg, 1rem);
+    text-decoration: none;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    text-align: left;
+  }
+
+  .drawer-premium__link--parent {
+    justify-content: space-between;
+  }
+
+  .drawer-premium__link--parent span:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .drawer-premium__chevron {
+    flex-shrink: 0;
+    transition: transform 200ms ease;
+  }
+
+  .drawer-premium__sublevel {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-background, #fff);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 250ms ease;
+    overflow-y: auto;
+  }
+
+  .drawer-premium__sublevel:not([hidden]) {
+    transform: translateX(0);
+  }
+
+  .drawer-premium__back {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem var(--padding-lg, 1rem);
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
+    cursor: pointer;
+    color: inherit;
+    font-size: 0.875rem;
+    width: 100%;
+    text-align: left;
+  }
+
+  .drawer-premium__sublevel-title {
+    margin: 0;
+    padding: 0.75rem var(--padding-lg, 1rem) 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+  }
+
+  .drawer-premium__link--view-all {
+    font-size: 0.8125rem;
+    opacity: 0.7;
+  }
+
+  .drawer-premium__account,
+  .drawer-premium__localization,
+  .drawer-premium__promo {
+    padding: var(--padding-lg, 1rem);
+    border-top: 1px solid var(--color-border, #e5e5e5);
+  }
+
+  .drawer-premium__section-title,
+  .drawer-premium__promo-label {
+    margin: 0 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+  }
+
+  .drawer-premium__account .drawer-premium__link {
+    padding: 0.5rem 0;
+    border-bottom: none;
+  }
+{% endstylesheet %}
