@@ -1,0 +1,93 @@
+{%- comment -%}
+  Top bar link block (PRIVATE)
+  ----------------------------
+  Single contact/info link in the top bar.
+  Examples: phone number, email address, store hours, location.
+
+  Used by: sections/header-topbar.liquid
+  Pattern: Symmetry / Enterprise / Stiletto top contact bar
+
+  Settings:
+    - icon (select): phone | email | location | clock | info | none
+    - label (text): Display text
+    - url (url): Optional link URL
+    - aria_label (text): Accessibility label override
+{%- endcomment -%}
+
+{%- liquid
+  assign icon = block.settings.icon | default: 'none'
+  assign label = block.settings.label | default: ''
+  assign url = block.settings.url
+  assign aria = block.settings.aria_label | default: label
+
+  assign tag = 'span'
+  if url != blank
+    assign tag = 'a'
+  endif
+-%}
+
+{%- if label != blank -%}
+  <{{ tag }}
+    class="topbar-link topbar-link--icon-{{ icon }}"
+    {% if url != blank %}href="{{ url }}"{% endif %}
+    {% if aria != blank %}aria-label="{{ aria | escape }}"{% endif %}
+    {{ block.shopify_attributes }}
+  >
+    {%- if icon != 'none' -%}
+      <span class="topbar-link__icon" aria-hidden="true">
+        {%- case icon -%}
+          {%- when 'phone' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h3l1.5 4-2 1.5a8 8 0 0 0 3 3L10 8.5 14 10v3a1 1 0 0 1-1 1A11 11 0 0 1 2 3a1 1 0 0 1 1-1z"/></svg>
+          {%- when 'email' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="m2 4 6 5 6-5"/></svg>
+          {%- when 'location' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 14s5-4.5 5-8a5 5 0 1 0-10 0c0 3.5 5 8 5 8z"/><circle cx="8" cy="6" r="2"/></svg>
+          {%- when 'clock' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>
+          {%- when 'info' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5h.01"/></svg>
+        {%- endcase -%}
+      </span>
+    {%- endif -%}
+    <span class="topbar-link__label">{{ label | escape }}</span>
+  </{{ tag }}>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:premium_header.names.topbar_link",
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:premium_header.settings.topbar_icon",
+      "options": [
+        { "value": "none",     "label": "t:premium_header.options.icon_none" },
+        { "value": "phone",    "label": "t:premium_header.options.icon_phone" },
+        { "value": "email",    "label": "t:premium_header.options.icon_email" },
+        { "value": "location", "label": "t:premium_header.options.icon_location" },
+        { "value": "clock",    "label": "t:premium_header.options.icon_clock" },
+        { "value": "info",     "label": "t:premium_header.options.icon_info" }
+      ],
+      "default": "phone"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:premium_header.settings.topbar_link_label",
+      "default": "+1-800-000-0000"
+    },
+    {
+      "type": "url",
+      "id": "url",
+      "label": "t:premium_header.settings.topbar_link_url"
+    },
+    {
+      "type": "text",
+      "id": "aria_label",
+      "label": "Accessibility label",
+      "info": "Optional. Defaults to the label."
+    }
+  ]
+}
+{% endschema %}

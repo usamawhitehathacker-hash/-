@@ -1,8 +1,11 @@
 
 
+
 {%- assign block_settings = block.settings -%}
 {%- assign plain_text = block_settings.text | strip_newlines | strip_html | strip -%}
 {%- assign block_index = section.blocks | find_index: 'id', block.id -%}
+{%- assign icon = block_settings.icon | default: 'none' -%}
+{%- assign dismissible = block_settings.dismissible | default: false -%}
 
 {%- unless plain_text == '' -%}
   <slideshow-slide
@@ -16,6 +19,8 @@
       custom-typography
       {% if block_settings.font_size != "" %}custom-font-size{% endif %}
       {% if block_settings.weight != "" %}custom-font-weight{% endif %}
+      {% if icon != "none" %}announcement-bar__slide--has-icon{% endif %}
+      {% if dismissible %}announcement-bar__slide--dismissible{% endif %}
     "
     style="
       {% render 'typography-style', settings: block_settings, preset: 'custom' %}
@@ -26,6 +31,27 @@
     {{ block.shopify_attributes }}
     aria-hidden="{% if block_index == 0 %}false{% else %}true{% endif %}"
   >
+    {%- if icon != 'none' -%}
+      <span class="announcement-bar__icon" aria-hidden="true">
+        {%- case icon -%}
+          {%- when 'truck' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="9" height="7" rx="1"/><path d="M10 6h3l2 2v3h-5"/><circle cx="4" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>
+          {%- when 'gift' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="12" height="8" rx="0.5"/><path d="M2 9h12M8 6v8M5 6c-2 0-2-3 0-3s3 3 3 3-1-3 0-3 3 0 3 3"/></svg>
+          {%- when 'star' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 1l2.2 4.5L15 6.2l-3.5 3.4.8 4.9L8 12.2 3.7 14.5l.8-4.9L1 6.2l4.8-.7z"/></svg>
+          {%- when 'percent' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="12" r="2"/><path d="m13 3-10 10"/></svg>
+          {%- when 'fire' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 1s-2 3-2 5 1 3 2 3 2-1 2-3-2-5-2-5zm-3 7c-1 1-2 2-2 4 0 2 2 3 5 3s5-1 5-3c0-2-1-3-2-4 0 1-.5 2-1 2 0-1-1-2-2-3 0 3-2 4-3 4z"/></svg>
+          {%- when 'clock' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>
+          {%- when 'tag' -%}
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1H2v6l7 7 6-6-7-7z"/><circle cx="5" cy="4" r="0.8" fill="currentColor"/></svg>
+        {%- endcase -%}
+      </span>
+    {%- endif -%}
+
     <p class="announcement-bar__text">
       {{ block.settings.text }}
     </p>
@@ -40,6 +66,19 @@
         </span>
       </a>
     {% endif %}
+
+    {%- if dismissible -%}
+      <button
+        type="button"
+        class="announcement-bar__dismiss"
+        data-announcement-dismiss
+        aria-label="{{ 'header.announcement.dismiss' | t }}"
+      >
+        <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="m3 3 10 10M13 3 3 13"/>
+        </svg>
+      </button>
+    {%- endif -%}
   </slideshow-slide>
 {%- endunless -%}
 
@@ -111,6 +150,49 @@
   .text-block--align-right,
   .text-block--align-right > * {
     margin-inline-start: auto;
+  }
+
+  /* Premium enhancements: icon + dismiss button */
+  .announcement-bar__slide--has-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .announcement-bar__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .announcement-bar__icon svg {
+    display: block;
+  }
+
+  .announcement-bar__dismiss {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 0;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: currentColor;
+    opacity: 0.6;
+    transition: opacity 150ms ease;
+    line-height: 0;
+  }
+
+  .announcement-bar__dismiss:hover,
+  .announcement-bar__dismiss:focus-visible {
+    opacity: 1;
+  }
+
+  .announcement-bar__slide--dismissible {
+    padding-inline-end: 2.5rem;
   }
 {% endstylesheet %}
 
@@ -309,6 +391,33 @@
         }
       ],
       "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Icon and dismiss"
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:premium_header.settings.announcement_icon",
+      "options": [
+        { "value": "none",    "label": "t:premium_header.options.icon_none" },
+        { "value": "truck",   "label": "Truck (shipping)" },
+        { "value": "gift",    "label": "Gift" },
+        { "value": "star",    "label": "Star" },
+        { "value": "percent", "label": "Percent (sale)" },
+        { "value": "fire",    "label": "Fire (hot)" },
+        { "value": "clock",   "label": "Clock" },
+        { "value": "tag",     "label": "Tag (offer)" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "dismissible",
+      "label": "Allow customer to dismiss",
+      "default": false,
+      "info": "Customer can close this announcement; it won't reappear in the same session."
     }
   ],
   "presets": [

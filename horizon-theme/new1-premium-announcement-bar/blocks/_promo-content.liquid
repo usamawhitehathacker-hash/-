@@ -1,0 +1,152 @@
+{%- comment -%}
+  Promo content block (PRIVATE)
+  -----------------------------
+  Promotional banner content — heading, subheading, button, optional image.
+  Used inside header promo section (below nav) or above announcements.
+
+  Used by: sections/header-promo.liquid
+  Pattern: Canopy / Local / Palo Alto promo banner
+
+  Settings:
+    - heading (text)
+    - subheading (text)
+    - button_label (text)
+    - button_url (url)
+    - image (image_picker)
+    - text_alignment (select)
+    - use_custom_colors (checkbox)
+    - bg_color (color)
+    - text_color (color)
+{%- endcomment -%}
+
+{%- liquid
+  assign s = block.settings
+  assign heading = s.heading | default: ''
+  assign subheading = s.subheading | default: ''
+  assign button_label = s.button_label | default: ''
+  assign button_url = s.button_url
+  assign image = s.image
+  assign text_alignment = s.text_alignment | default: 'center'
+  assign use_custom_colors = s.use_custom_colors | default: false
+  assign bg_color = s.bg_color
+  assign text_color = s.text_color
+-%}
+
+{%- capture promo_style -%}
+  {%- if use_custom_colors -%}
+    --promo-bg: {{ bg_color }};
+    --promo-text: {{ text_color }};
+  {%- endif -%}
+{%- endcapture -%}
+
+<div
+  class="header-promo__content header-promo__content--align-{{ text_alignment }}{% if use_custom_colors %} header-promo__content--custom-colors{% endif %}"
+  {% if promo_style != blank %}style="{{ promo_style | strip_newlines | strip }}"{% endif %}
+  {{ block.shopify_attributes }}
+>
+  {%- if image != blank -%}
+    <div class="header-promo__image">
+      {{
+        image
+        | image_url: width: 800
+        | image_tag:
+          loading: 'lazy',
+          alt: image.alt | default: heading | escape,
+          width: image.width,
+          height: image.height,
+          sizes: '(min-width: 990px) 33vw, 100vw',
+          widths: '200, 400, 600, 800, 1200',
+          class: 'header-promo__image-img'
+      }}
+    </div>
+  {%- endif -%}
+
+  <div class="header-promo__text">
+    {%- if heading != blank -%}
+      <p class="header-promo__heading">{{ heading | escape }}</p>
+    {%- endif -%}
+
+    {%- if subheading != blank -%}
+      <p class="header-promo__subheading">{{ subheading | escape }}</p>
+    {%- endif -%}
+
+    {%- if button_label != blank -%}
+      <a
+        class="header-promo__button button button--primary button--small"
+        {% if button_url != blank %}href="{{ button_url }}"{% else %}href="#" aria-disabled="true"{% endif %}
+      >
+        {{ button_label | escape }}
+        <span class="header-promo__button-arrow" aria-hidden="true">&rarr;</span>
+      </a>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:premium_header.names.promo_content",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:premium_header.settings.promo_heading",
+      "default": "Free shipping on orders over $50"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:premium_header.settings.promo_subheading",
+      "default": "Limited time only"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:premium_header.settings.promo_button_label",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "t:premium_header.settings.promo_button_link"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left",   "label": "t:premium_header.options.menu_align_left" },
+        { "value": "center", "label": "t:premium_header.options.menu_align_center" },
+        { "value": "right",  "label": "t:premium_header.options.menu_align_right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:premium_header.groups.colors"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_colors",
+      "label": "t:premium_header.settings.use_custom_colors",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "t:premium_header.settings.promo_background_color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:premium_header.settings.promo_text_color",
+      "default": "#FFFFFF"
+    }
+  ]
+}
+{% endschema %}

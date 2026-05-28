@@ -1,0 +1,145 @@
+{%- comment -%}
+  Countdown announcement block (PRIVATE)
+  --------------------------------------
+  Announcement message with live countdown timer.
+  Used inside header-announcements section for sales / launches / drops.
+
+  Used by: sections/header-announcements.liquid (Step 32)
+  JS Web Component: assets/announcement-countdown.js (Step 36)
+  Pattern: Broadcast / Impulse / Release countdown announcement
+
+  Settings:
+    - text (text): Lead text before countdown
+    - end_date (text): YYYY-MM-DD
+    - end_time (text): HH:MM (24h, store timezone)
+    - expired_text (text): Replacement text after countdown ends
+    - compact (checkbox): Show "1d 2h 3m" instead of full unit labels
+    - icon (select): clock | none
+    - link_url (url): Optional link wrapping the announcement
+{%- endcomment -%}
+
+{%- liquid
+  assign s = block.settings
+  assign lead_text = s.text | default: 'Sale ends in'
+  assign end_date = s.end_date | default: ''
+  assign end_time = s.end_time | default: '23:59'
+  assign expired_text = s.expired_text | default: ''
+  assign compact = s.compact | default: false
+  assign icon = s.icon | default: 'clock'
+  assign link_url = s.link_url
+
+  # Build ISO datetime: YYYY-MM-DDTHH:MM:00
+  assign end_iso = ''
+  if end_date != blank
+    assign end_iso = end_date | append: 'T' | append: end_time | append: ':00'
+  endif
+
+  assign tag = 'div'
+  if link_url != blank
+    assign tag = 'a'
+  endif
+-%}
+
+<{{ tag }}
+  is="countdown-announcement"
+  class="announcement announcement--countdown{% if compact %} announcement--compact{% endif %}"
+  {% if link_url != blank %}href="{{ link_url }}"{% endif %}
+  {% if end_iso != blank %}data-end-date="{{ end_iso }}"{% endif %}
+  data-expired-text="{{ expired_text | escape }}"
+  {{ block.shopify_attributes }}
+>
+  {%- if icon == 'clock' -%}
+    <span class="announcement__icon" aria-hidden="true">
+      <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="6"/>
+        <path d="M8 5v3l2 1.5"/>
+      </svg>
+    </span>
+  {%- endif -%}
+
+  {%- if lead_text != blank -%}
+    <span class="announcement__lead">{{ lead_text | escape }}</span>
+  {%- endif -%}
+
+  <span class="announcement__countdown" data-countdown-display>
+    {%- if compact -%}
+      <span data-countdown-compact>--d --h --m</span>
+    {%- else -%}
+      <span class="countdown-unit">
+        <span data-countdown-days>--</span>
+        <span class="countdown-unit__label">{{ 'header.countdown.days_short' | t }}</span>
+      </span>
+      <span class="countdown-unit">
+        <span data-countdown-hours>--</span>
+        <span class="countdown-unit__label">{{ 'header.countdown.hours_short' | t }}</span>
+      </span>
+      <span class="countdown-unit">
+        <span data-countdown-minutes>--</span>
+        <span class="countdown-unit__label">{{ 'header.countdown.minutes_short' | t }}</span>
+      </span>
+      <span class="countdown-unit">
+        <span data-countdown-seconds>--</span>
+        <span class="countdown-unit__label">{{ 'header.countdown.seconds_short' | t }}</span>
+      </span>
+    {%- endif -%}
+  </span>
+
+  {%- comment -%} Expired-state replacement, hidden by default. JS swaps after countdown ends. {%- endcomment -%}
+  {%- if expired_text != blank -%}
+    <span class="announcement__expired" data-countdown-expired hidden>{{ expired_text | escape }}</span>
+  {%- endif -%}
+</{{ tag }}>
+
+{% schema %}
+{
+  "name": "t:premium_header.names.countdown_announcement",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "t:premium_header.settings.announcement_text",
+      "default": "Flash sale ends in"
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "t:premium_header.settings.countdown_end_date",
+      "info": "Format: YYYY-MM-DD (e.g., 2026-12-31)"
+    },
+    {
+      "type": "text",
+      "id": "end_time",
+      "label": "t:premium_header.settings.countdown_end_time",
+      "default": "23:59",
+      "info": "24-hour format: HH:MM (store timezone)"
+    },
+    {
+      "type": "text",
+      "id": "expired_text",
+      "label": "t:premium_header.settings.countdown_expired_text",
+      "default": "Sale ended"
+    },
+    {
+      "type": "checkbox",
+      "id": "compact",
+      "label": "t:premium_header.settings.countdown_compact",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:premium_header.settings.announcement_icon",
+      "options": [
+        { "value": "clock", "label": "t:premium_header.options.icon_clock" },
+        { "value": "none",  "label": "t:premium_header.options.icon_none" }
+      ],
+      "default": "clock"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "t:premium_header.settings.announcement_link"
+    }
+  ]
+}
+{% endschema %}
