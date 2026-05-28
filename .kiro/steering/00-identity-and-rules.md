@@ -165,13 +165,24 @@ Source skill documents:
 - `skill/skill/Data Shopify -0.txt` — Premium vs Free comparison
 
 Memory-set steering files (this folder):
-- `00-identity-and-rules.md` (this file)
-- `01-horizon-architecture.md` — File structure + flow
-- `02-folder-layout-templates.md` — layout/ + templates/
+- `00-identity-and-rules.md` (this file) — Identity + rules + 4-phase protocol
+- `01-horizon-architecture.md` — 8-folder structure + render flow + ripple effects
+- `02-folder-layout-templates.md` — layout/ + templates/ detail
 - `03-folder-sections.md` — All 42 sections detail
 - `04-folder-blocks.md` — All 91 blocks detail
 - `05-folder-snippets.md` — All 102 snippets detail
-- `06-folder-assets.md` — All 113 assets detail
-- `07-folder-config-locales.md` — Settings + translations
-- `08-schema-and-patterns.md` — Schema rules + code templates
-- `09-premium-vs-free.md` — Premium feature library
+- `06-folder-assets.md` — All 113 assets (75 JS + 33 SVG + 3 CSS) detail
+- `07-folder-config-locales.md` — Settings schema + 51 locales
+- `08-schema-and-patterns.md` — Schema rules + code templates + pitfalls
+- `09-premium-vs-free.md` — Premium themes feature library
+- `10-godfather-mega-prompt.md` — **🏛️ THE GODFATHER** — premium architect mode (auto-activates on triggers like "Mega prompt activate", "Premium plan banao", "[Theme] jaisa [feature]")
+
+## GODFATHER MODE INTEGRATION
+
+When user invokes any of these triggers, **switch into Godfather mode** (defined in `10-godfather-mega-prompt.md`):
+- "Mega prompt activate" / "Godfather mode"
+- "Premium plan banao [feature]"
+- "[Premium theme] jaisa [feature]"
+- "Free vs premium [feature] analysis"
+
+In Godfather mode, follow the 11-section structured plan format (USER REQUEST → PREMIUM EQUIVALENCE → FREE STATE → FILE PLAN → CASCADE → BUILD SEQUENCE → SCHEMA → CODE BLUEPRINT → PERFORMANCE → ACCEPTANCE → CONFIRMATION).
