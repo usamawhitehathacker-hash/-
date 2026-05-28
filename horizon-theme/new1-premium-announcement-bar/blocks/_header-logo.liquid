@@ -51,35 +51,40 @@
     assign inverse_logo_style = '--header-logo-image-width: ' | append: inverse_logo_width | append: 'px;' | append: '--header-logo-image-width-mobile: ' | append: inverse_logo_width_mobile | append: 'px; --header-logo-image-height: ' | append: settings.logo_height | append: 'px; --header-logo-image-height-mobile: ' | append: settings.logo_height_mobile | append: 'px;'
   %}
 
-  <span
-    class="header-logo__image-container header-logo__image-container--original"
-    data-testid="header-logo"
+  <div class="header-premium__logo"
+       {% if block.settings.inverse_logo %}data-inverse-logo="{{ block.settings.inverse_logo | image_url: width: 400 }}"{% endif %}
+       style="--logo-mobile-max-width: {{ block.settings.mobile_max_width | default: 120 }}px;"
   >
-    {% render 'image',
-      image: settings.logo,
-      class: 'header-logo__image',
-      height: settings.logo_height,
-      alt_text_fallback: alt_text_fallback,
-      text_fallback: shop.name,
-      style: logo_style
-    %}
-  </span>
-
-  {% if use_inverse_logo %}
     <span
-      class="header-logo__image-container header-logo__image-container--inverse"
-      data-testid="header-logo-inverse"
+      class="header-logo__image-container header-logo__image-container--original"
+      data-testid="header-logo"
     >
       {% render 'image',
-        image: inverse_logo,
+        image: settings.logo,
         class: 'header-logo__image',
         height: settings.logo_height,
         alt_text_fallback: alt_text_fallback,
         text_fallback: shop.name,
-        style: inverse_logo_style
+        style: logo_style
       %}
     </span>
-  {% endif %}
+
+    {% if use_inverse_logo %}
+      <span
+        class="header-logo__image-container header-logo__image-container--inverse"
+        data-testid="header-logo-inverse"
+      >
+        {% render 'image',
+          image: inverse_logo,
+          class: 'header-logo__image',
+          height: settings.logo_height,
+          alt_text_fallback: alt_text_fallback,
+          text_fallback: shop.name,
+          style: inverse_logo_style
+        %}
+      </span>
+    {% endif %}
+  </div>
 </a>
 
 {% stylesheet %}
@@ -138,6 +143,20 @@
   .header-logo__image-container--inverse {
     display: var(--header-logo-inverse-display, none);
   }
+
+  .header-premium__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @media screen and (max-width: 749px) {
+    .header-premium__logo .header-logo__image {
+      max-width: var(--logo-mobile-max-width, 120px);
+      height: auto;
+    }
+  }
 {% endstylesheet %}
 
 {% schema %}
@@ -183,6 +202,26 @@
       "step": 1,
       "unit": "px",
       "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Premium header features"
+    },
+    {
+      "type": "image_picker",
+      "id": "inverse_logo",
+      "label": "Inverse logo (transparent header)",
+      "info": "Used when header is transparent. Should be light-colored for dark backgrounds."
+    },
+    {
+      "type": "range",
+      "id": "mobile_max_width",
+      "label": "Logo max width (mobile)",
+      "min": 60,
+      "max": 200,
+      "step": 10,
+      "default": 120,
+      "unit": "px"
     }
   ]
 }

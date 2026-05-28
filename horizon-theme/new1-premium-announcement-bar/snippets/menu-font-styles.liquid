@@ -21,3 +21,10 @@
   var(--menu-font-sm--line-height);
 {% endif %}
 --menu-top-level-font-color: var(--color-foreground); --menu-top-level-font-color-rgb: var(--color-foreground-rgb);
+
+{%- comment -%} Premium animated hover styles - output as CSS variables for the hover system {%- endcomment -%}
+{%- liquid
+  assign hover_style = settings.header_menu_hover_style | default: 'underline'
+  assign animation_duration = settings.header_animation_duration | default: 250
+-%}
+--header-menu-hover-style: {{ hover_style }}; --header-menu-animation-duration: {{ animation_duration }}ms;
