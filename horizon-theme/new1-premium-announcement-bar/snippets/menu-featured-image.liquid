@@ -1,0 +1,16 @@
+{%- comment -%}
+  Menu featured image placeholder
+  This snippet is referenced by link-featured-image.liquid in the legacy drawer code.
+  Provides backward compatibility.
+{%- endcomment -%}
+
+{%- if image != blank -%}
+  {{
+    image
+    | image_url: width: 400
+    | image_tag:
+      loading: 'lazy',
+      alt: alt | default: '' | escape,
+      class: 'menu-featured-image'
+  }}
+{%- endif -%}
