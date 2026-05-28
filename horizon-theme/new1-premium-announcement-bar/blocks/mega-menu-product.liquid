@@ -1,0 +1,167 @@
+{%- comment -%}
+  Mega menu featured product block (PUBLIC)
+  ------------------------------------------
+  Single featured product card inside mega menu.
+  Compact card: image + title + price + (optional) swatches + (optional) quick add.
+
+  Used by: blocks/_header-menu.liquid (Step 23)
+  Pattern: Impulse Layout 4 — featured products in mega menu
+
+  Settings:
+    - product (product picker)
+    - show_price (checkbox)
+    - show_vendor (checkbox)
+    - show_swatches (checkbox)
+    - show_quick_add (checkbox)
+    - badge_label (text): optional small badge
+{%- endcomment -%}
+
+{%- liquid
+  assign s = block.settings
+  assign product = s.product
+  assign show_price = s.show_price | default: true
+  assign show_vendor = s.show_vendor | default: false
+  assign show_swatches = s.show_swatches | default: false
+  assign show_quick_add = s.show_quick_add | default: false
+  assign badge_label = s.badge_label | default: ''
+-%}
+
+{%- if product != blank -%}
+  <div class="mega-menu-product" {{ block.shopify_attributes }}>
+    <a class="mega-menu-product__link" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
+      <div class="mega-menu-product__image">
+        {%- if product.featured_image != blank -%}
+          {{
+            product.featured_image
+            | image_url: width: 400
+            | image_tag:
+              loading: 'lazy',
+              alt: product.featured_image.alt | default: product.title | escape,
+              width: product.featured_image.width,
+              height: product.featured_image.height,
+              sizes: '(min-width: 990px) 200px, 50vw',
+              widths: '150, 300, 450',
+              class: 'mega-menu-product__image-img'
+          }}
+        {%- else -%}
+          <div class="mega-menu-product__placeholder" aria-hidden="true">
+            {{ 'product-1' | placeholder_svg_tag: 'mega-menu-product__placeholder-svg' }}
+          </div>
+        {%- endif -%}
+
+        {%- if badge_label != blank -%}
+          <span class="mega-menu-product__badge">{{ badge_label | escape }}</span>
+        {%- elsif product.compare_at_price > product.price -%}
+          <span class="mega-menu-product__badge mega-menu-product__badge--sale">
+            {{ 'header.mega_menu.badge_sale' | t }}
+          </span>
+        {%- endif -%}
+      </div>
+
+      <div class="mega-menu-product__info">
+        {%- if show_vendor and product.vendor != blank -%}
+          <p class="mega-menu-product__vendor">{{ product.vendor | escape }}</p>
+        {%- endif -%}
+
+        <p class="mega-menu-product__title">{{ product.title | escape }}</p>
+
+        {%- if show_price -%}
+          <p class="mega-menu-product__price">
+            {%- if product.compare_at_price > product.price -%}
+              <span class="mega-menu-product__price--sale">{{ product.price | money }}</span>
+              <s class="mega-menu-product__price--compare">{{ product.compare_at_price | money }}</s>
+            {%- else -%}
+              <span>{{ product.price | money }}</span>
+            {%- endif -%}
+          </p>
+        {%- endif -%}
+      </div>
+    </a>
+
+    {%- if show_swatches -%}
+      {%- assign color_option = null -%}
+      {%- for option in product.options_with_values -%}
+        {%- assign opt_name = option.name | downcase -%}
+        {%- if opt_name contains 'color' or opt_name contains 'colour' -%}
+          {%- assign color_option = option -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if color_option -%}
+        <ul class="mega-menu-product__swatches" role="list" aria-label="Available colors">
+          {%- for value in color_option.values limit: 5 -%}
+            <li
+              class="mega-menu-product__swatch"
+              style="--swatch-color: {{ value | downcase | replace: ' ', '' }};"
+              title="{{ value | escape }}"
+            ></li>
+          {%- endfor -%}
+          {%- if color_option.values.size > 5 -%}
+            <li class="mega-menu-product__swatch-more">+{{ color_option.values.size | minus: 5 }}</li>
+          {%- endif -%}
+        </ul>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if show_quick_add and product.available -%}
+      <button
+        type="button"
+        class="mega-menu-product__quick-add button button--small button--secondary"
+        data-quick-add-trigger
+        data-product-handle="{{ product.handle }}"
+        data-product-id="{{ product.id }}"
+        aria-label="Quick add {{ product.title | escape }}"
+      >
+        {{ 'products.product.add_to_cart' | t }}
+      </button>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:premium_header.names.mega_menu_product",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:premium_header.settings.product"
+    },
+    {
+      "type": "text",
+      "id": "badge_label",
+      "label": "Custom badge label",
+      "info": "Leave blank to auto-detect sale price"
+    },
+    {
+      "type": "header",
+      "content": "Display options"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "t:premium_header.settings.show_price",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_swatches",
+      "label": "t:premium_header.settings.show_swatches",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_add",
+      "label": "t:premium_header.settings.show_quick_add",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

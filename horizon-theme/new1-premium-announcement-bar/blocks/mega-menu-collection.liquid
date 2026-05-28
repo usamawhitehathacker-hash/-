@@ -1,0 +1,157 @@
+{%- comment -%}
+  Mega menu featured collection block (PUBLIC)
+  ---------------------------------------------
+  Single featured collection card inside mega menu.
+  Image + title + product count + (optional) description.
+
+  Used by: blocks/_header-menu.liquid (Step 23)
+  Pattern: Prestige Layout 3 — featured collection cards in mega menu
+
+  Settings:
+    - collection (collection picker)
+    - heading_override (text): override collection title
+    - description_override (text): override description
+    - show_product_count (checkbox)
+    - cta_label (text)
+    - aspect_ratio (select)
+{%- endcomment -%}
+
+{%- liquid
+  assign s = block.settings
+  assign collection = s.collection
+  assign heading_override = s.heading_override | default: ''
+  assign description_override = s.description_override | default: ''
+  assign show_product_count = s.show_product_count | default: true
+  assign cta_label = s.cta_label | default: ''
+  assign aspect_ratio = s.aspect_ratio | default: 'portrait'
+
+  if collection != blank
+    if heading_override != blank
+      assign display_heading = heading_override
+    else
+      assign display_heading = collection.title
+    endif
+
+    if description_override != blank
+      assign display_description = description_override
+    else
+      assign display_description = collection.description | strip_html | truncate: 80
+    endif
+
+    if collection.featured_image != blank
+      assign display_image = collection.featured_image
+    elsif collection.products.first.featured_image != blank
+      assign display_image = collection.products.first.featured_image
+    else
+      assign display_image = null
+    endif
+  endif
+-%}
+
+{%- if collection != blank -%}
+  <a
+    class="mega-menu-collection mega-menu-collection--{{ aspect_ratio }}"
+    href="{{ collection.url }}"
+    aria-label="{{ display_heading | escape }}"
+    {{ block.shopify_attributes }}
+  >
+    <div class="mega-menu-collection__image">
+      {%- if display_image != blank -%}
+        {{
+          display_image
+          | image_url: width: 600
+          | image_tag:
+            loading: 'lazy',
+            alt: display_image.alt | default: display_heading | escape,
+            width: display_image.width,
+            height: display_image.height,
+            sizes: '(min-width: 990px) 25vw, 50vw',
+            widths: '200, 400, 600, 800',
+            class: 'mega-menu-collection__image-img'
+        }}
+      {%- else -%}
+        <div class="mega-menu-collection__placeholder" aria-hidden="true">
+          {{ 'collection-1' | placeholder_svg_tag: 'mega-menu-collection__placeholder-svg' }}
+        </div>
+      {%- endif -%}
+      <span class="mega-menu-collection__overlay" aria-hidden="true"></span>
+    </div>
+
+    <div class="mega-menu-collection__info">
+      <p class="mega-menu-collection__heading">{{ display_heading | escape }}</p>
+
+      {%- if show_product_count -%}
+        <p class="mega-menu-collection__count">
+          {{ collection.products_count }}
+          {%- if collection.products_count == 1 -%} product {%- else -%} products {%- endif -%}
+        </p>
+      {%- endif -%}
+
+      {%- if display_description != blank -%}
+        <p class="mega-menu-collection__description">{{ display_description | escape }}</p>
+      {%- endif -%}
+
+      <span class="mega-menu-collection__cta">
+        {%- if cta_label != blank -%}
+          {{ cta_label | escape }}
+        {%- else -%}
+          {{ 'header.mega_menu.shop_collection' | t }}
+        {%- endif -%}
+        <span aria-hidden="true">&rarr;</span>
+      </span>
+    </div>
+  </a>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:premium_header.names.mega_menu_collection",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "t:premium_header.settings.collection"
+    },
+    {
+      "type": "text",
+      "id": "heading_override",
+      "label": "Heading (override)",
+      "info": "Leave blank to use collection title"
+    },
+    {
+      "type": "text",
+      "id": "description_override",
+      "label": "Description (override)",
+      "info": "Leave blank to use collection description"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "CTA label",
+      "info": "Leave blank for \"Shop collection\""
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        { "value": "square",    "label": "Square (1:1)" },
+        { "value": "portrait",  "label": "Portrait (3:4)" },
+        { "value": "landscape", "label": "Landscape (4:3)" },
+        { "value": "wide",      "label": "Wide (16:9)" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_count",
+      "label": "Show product count",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

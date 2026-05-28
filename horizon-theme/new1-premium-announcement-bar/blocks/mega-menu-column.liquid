@@ -1,0 +1,204 @@
+{%- comment -%}
+  Mega menu column block (PUBLIC)
+  --------------------------------
+  Multi-column menu with optional heading, link list, and image.
+  Merchant adds 2-6 columns inside mega menu.
+
+  Used by: blocks/_header-menu.liquid (Step 23)
+  Pattern: Prestige Layout 2/3 (multi-column with optional image)
+
+  Settings:
+    - heading (text)
+    - heading_link (url): optional clickable heading
+    - menu (link_list)
+    - image (image_picker): optional column image
+    - image_position (select): top | bottom | none
+    - show_view_all (checkbox)
+    - view_all_label (text)
+    - view_all_url (url)
+{%- endcomment -%}
+
+{%- liquid
+  assign s = block.settings
+  assign heading = s.heading | default: ''
+  assign heading_link = s.heading_link
+  assign menu_handle = s.menu
+  assign image = s.image
+  assign image_position = s.image_position | default: 'top'
+  assign show_view_all = s.show_view_all | default: false
+  assign view_all_label = s.view_all_label | default: ''
+  assign view_all_url = s.view_all_url
+
+  assign menu = linklists[menu_handle]
+-%}
+
+<div
+  class="mega-menu-column mega-menu-column--image-{{ image_position }}"
+  {{ block.shopify_attributes }}
+>
+  {%- if image != blank and image_position == 'top' -%}
+    <div class="mega-menu-column__image">
+      {%- if heading_link != blank -%}<a href="{{ heading_link }}" tabindex="-1" aria-hidden="true">{%- endif -%}
+        {{
+          image
+          | image_url: width: 600
+          | image_tag:
+            loading: 'lazy',
+            alt: image.alt | default: heading | escape,
+            width: image.width,
+            height: image.height,
+            sizes: '(min-width: 990px) 25vw, 50vw',
+            widths: '200, 400, 600, 800',
+            class: 'mega-menu-column__image-img'
+        }}
+      {%- if heading_link != blank -%}</a>{%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if heading != blank -%}
+    {%- if heading_link != blank -%}
+      <a class="mega-menu-column__heading mega-menu-column__heading--link" href="{{ heading_link }}">
+        {{ heading | escape }}
+      </a>
+    {%- else -%}
+      <p class="mega-menu-column__heading">{{ heading | escape }}</p>
+    {%- endif -%}
+  {%- endif -%}
+
+
+
+  {%- if menu != blank and menu.links.size > 0 -%}
+    <ul class="mega-menu-column__list" role="list">
+      {%- for link in menu.links -%}
+        {%- liquid
+          # Badge detection: parse [NEW], [SALE], [HOT], [-30%] from link title
+          assign raw_title = link.title
+          assign clean_title = raw_title
+          assign badge_label = ''
+          if raw_title contains '[NEW]'
+            assign clean_title = raw_title | replace: '[NEW]', '' | strip
+            assign badge_label = 'new'
+          elsif raw_title contains '[SALE]'
+            assign clean_title = raw_title | replace: '[SALE]', '' | strip
+            assign badge_label = 'sale'
+          elsif raw_title contains '[HOT]'
+            assign clean_title = raw_title | replace: '[HOT]', '' | strip
+            assign badge_label = 'hot'
+          elsif raw_title contains '[-'
+            assign discount_part = raw_title | split: '[' | last | split: ']' | first
+            assign clean_title = raw_title | split: '[' | first | strip
+            assign badge_label = discount_part
+          endif
+        -%}
+        <li class="mega-menu-column__item">
+          <a
+            class="mega-menu-column__link{% if link.active %} mega-menu-column__link--active{% endif %}"
+            href="{{ link.url }}"
+            {% if link.active %}aria-current="page"{% endif %}
+          >
+            <span class="mega-menu-column__link-label">{{ clean_title | escape }}</span>
+            {%- if badge_label != '' -%}
+              {%- render 'menu-badge', label: badge_label -%}
+            {%- endif -%}
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+
+  {%- if image != blank and image_position == 'bottom' -%}
+    <div class="mega-menu-column__image mega-menu-column__image--bottom">
+      {%- if heading_link != blank -%}<a href="{{ heading_link }}" tabindex="-1" aria-hidden="true">{%- endif -%}
+        {{
+          image
+          | image_url: width: 600
+          | image_tag:
+            loading: 'lazy',
+            alt: image.alt | default: heading | escape,
+            width: image.width,
+            height: image.height,
+            sizes: '(min-width: 990px) 25vw, 50vw',
+            widths: '200, 400, 600, 800',
+            class: 'mega-menu-column__image-img'
+        }}
+      {%- if heading_link != blank -%}</a>{%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if show_view_all and view_all_url != blank -%}
+    <a class="mega-menu-column__view-all" href="{{ view_all_url }}">
+      {%- if view_all_label != blank -%}
+        {{ view_all_label | escape }}
+      {%- else -%}
+        {{ 'header.mega_menu.view_all' | t }}
+      {%- endif -%}
+      <span class="mega-menu-column__view-all-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:premium_header.names.mega_menu_column",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:premium_header.settings.column_heading",
+      "default": "Shop"
+    },
+    {
+      "type": "url",
+      "id": "heading_link",
+      "label": "Heading link (optional)"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:premium_header.settings.column_menu",
+      "info": "t:premium_header.info.menu_naming_help"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:premium_header.settings.column_image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        { "value": "top",    "label": "t:premium_header.options.image_position_top" },
+        { "value": "bottom", "label": "t:premium_header.options.image_position_bottom" },
+        { "value": "none",   "label": "t:premium_header.options.icon_none" }
+      ],
+      "default": "top"
+    },
+    {
+      "type": "header",
+      "content": "View all link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show view all link",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View all label",
+      "info": "Leave blank to use \"View all\""
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "View all URL"
+    }
+  ]
+}
+{% endschema %}
